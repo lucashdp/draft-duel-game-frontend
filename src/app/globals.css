@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ================================================================
+   CSS custom properties — raw HSL values (shadcn convention)
+   shadcn components reference these as: hsl(var(--primary)) etc.
+   ================================================================ */
+:root {
+  --background: 220 18% 8%;
+  --foreground: 210 20% 90%;
+
+  --card: 220 18% 11%;
+  --card-foreground: 210 20% 90%;
+
+  --popover: 220 18% 11%;
+  --popover-foreground: 210 20% 90%;
+
+  --primary: 140 70% 50%;
+  --primary-foreground: 220 18% 8%;
+
+  --secondary: 220 15% 15%;
+  --secondary-foreground: 210 20% 90%;
+
+  --muted: 220 15% 15%;
+  --muted-foreground: 210 15% 55%;
+
+  --accent: 220 15% 18%;
+  --accent-foreground: 210 20% 90%;
+
+  --destructive: 0 80% 60%;
+  --destructive-foreground: 210 20% 90%;
+
+  --border: 220 15% 15%;
+  --input: 220 15% 18%;
+  --ring: 140 70% 50%;
+  --radius: 0.5rem;
+
+  /* Custom game tokens */
+  --surface: 220 18% 11%;
+  --event-positive: 140 70% 50%;
+  --event-negative: 0 80% 60%;
+  --event-warning: 45 100% 55%;
+}
+
+/* ================================================================
+   Tailwind v4 theme: maps CSS vars → Tailwind utility classes
+   bg-primary, text-foreground, bg-surface, text-event-positive…
+   ================================================================ */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Custom game tokens */
+  --color-surface: hsl(var(--surface));
+  --color-event-positive: hsl(var(--event-positive));
+  --color-event-negative: hsl(var(--event-negative));
+  --color-event-warning: hsl(var(--event-warning));
+
+  /* Border radius scale */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Font — Roboto Flex loaded via next/font (variable set on <html>) */
+  --font-sans: var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
+
+  /* Animation utilities — creates animate-flash-positive, etc. */
+  --animate-flash-positive: flash-positive 0.7s ease-out;
+  --animate-flash-negative: flash-negative 0.7s ease-out;
+  --animate-pulse-sub: pulse-sub 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+/* ================================================================
+   Keyframe definitions
+   ================================================================ */
+@keyframes flash-positive {
+  from { background-color: hsla(140, 70%, 50%, 0.3); }
+  to   { background-color: transparent; }
+}
+
+@keyframes flash-negative {
+  from { background-color: hsla(0, 80%, 60%, 0.3); }
+  to   { background-color: transparent; }
+}
+
+@keyframes pulse-sub {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.8; }
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+
+/* ================================================================
+   Base reset
+   ================================================================ */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ================================================================
+   Custom utilities
+   ================================================================ */
+@utility tabular-nums {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
+}
