@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ================================================================
    CSS custom properties — raw HSL values (shadcn convention)
@@ -84,9 +88,14 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Font — Roboto Flex loaded via next/font (variable set on <html>) */
   --font-sans: var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-roboto-flex), ui-sans-serif, system-ui, sans-serif;
 
   /* Animation utilities — creates animate-flash-positive, etc. */
   --animate-flash-positive: flash-positive 0.7s ease-out;
@@ -130,12 +139,17 @@
 @layer base {
   * {
     border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
   }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
