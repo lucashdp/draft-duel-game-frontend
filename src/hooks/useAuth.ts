@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { User } from '@/types/domain'
 
@@ -18,4 +18,10 @@ export function useAuth() {
 export function useInvalidateAuth() {
   const queryClient = useQueryClient()
   return () => queryClient.invalidateQueries({ queryKey: ['me'] })
+}
+
+export function useRequestMagicLink() {
+  return useMutation({
+    mutationFn: (input: { email: string }) => api.post<void>('/auth/magic-link', input),
+  })
 }
