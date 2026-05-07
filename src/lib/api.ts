@@ -10,7 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+interface RequestOptions extends RequestInit {
+  _skipRefresh?: boolean
+}
+
+async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T> {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
     ...init,
     credentials: 'include',
@@ -31,13 +35,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
+async function request<T>(path: string, init?: RequestOptions): Promise<T> {
+  return executeRequest<T>(path, init)
+}
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
 
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : JSON.stringify(body),
     }),
 
   patch: <T>(path: string, body: unknown) =>
@@ -46,6 +54,5 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  delete: <T>(path: string) =>
-    request<T>(path, { method: 'DELETE' }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }
