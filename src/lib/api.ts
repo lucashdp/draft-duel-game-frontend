@@ -36,7 +36,23 @@ async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T
 }
 
 async function request<T>(path: string, init?: RequestOptions): Promise<T> {
-  return executeRequest<T>(path, init)
+  try {
+    return await executeRequest<T>(path, init)
+  } catch (err) {
+    if (
+      err instanceof ApiError &&
+      err.status === 401 &&
+      !init?._skipRefresh &&
+      !path.startsWith('/auth/')
+    ) {
+      await executeRequest<void>('/auth/refresh', {
+        method: 'POST',
+        _skipRefresh: true,
+      })
+      return executeRequest<T>(path, init)
+    }
+    throw err
+  }
 }
 
 export const api = {
