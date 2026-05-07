@@ -35,6 +35,20 @@ async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T
   return body as T
 }
 
+let inflightRefresh: Promise<void> | null = null
+
+function refreshOnce(): Promise<void> {
+  if (!inflightRefresh) {
+    inflightRefresh = executeRequest<void>('/auth/refresh', {
+      method: 'POST',
+      _skipRefresh: true,
+    }).finally(() => {
+      inflightRefresh = null
+    })
+  }
+  return inflightRefresh
+}
+
 async function request<T>(path: string, init?: RequestOptions): Promise<T> {
   try {
     return await executeRequest<T>(path, init)
@@ -45,10 +59,7 @@ async function request<T>(path: string, init?: RequestOptions): Promise<T> {
       !init?._skipRefresh &&
       !path.startsWith('/auth/')
     ) {
-      await executeRequest<void>('/auth/refresh', {
-        method: 'POST',
-        _skipRefresh: true,
-      })
+      await refreshOnce()
       return executeRequest<T>(path, init)
     }
     throw err
