@@ -36,4 +36,27 @@ describe('api refresh-on-401', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3)
     expect(fetchMock.mock.calls[1][0]).toContain('/auth/refresh')
   })
+
+  it('throws original 401 when refresh itself fails', async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(401, { message: 'expired' }))
+      .mockResolvedValueOnce(jsonResponse(401, {}))
+
+    await expect(api.get('/me')).rejects.toBeInstanceOf(ApiError)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not refresh when the failing request is /auth/refresh itself', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(401, {}))
+
+    await expect(api.post('/auth/refresh')).rejects.toBeInstanceOf(ApiError)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not refresh when the failing request is under /auth/', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(401, {}))
+
+    await expect(api.post('/auth/verify', { token: 'x'.repeat(43) })).rejects.toBeInstanceOf(ApiError)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
 })
