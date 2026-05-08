@@ -38,3 +38,13 @@ export function useVerifyMagicLink() {
     },
   })
 }
+
+export function useLogout() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.post<void>('/auth/logout'),
+    onSettled: () => {
+      queryClient.clear()
+    },
+  })
+}
