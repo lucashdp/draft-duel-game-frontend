@@ -39,7 +39,7 @@ describe('useRequestMagicLink', () => {
 })
 
 describe('useVerifyMagicLink', () => {
-  it('POSTs the token, returns the user, and invalidates [me]', async () => {
+  it('POSTs the token, returns the user, and sets the [me] query data', async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ user: { id: 'u1', email: 'a@b.c', nickname: 'a' } }), {
         status: 200,
@@ -48,7 +48,7 @@ describe('useVerifyMagicLink', () => {
     )
 
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-    const invalidateSpy = vi.spyOn(client, 'invalidateQueries')
+    const setSpy = vi.spyOn(client, 'setQueryData')
 
     const wrap = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
@@ -62,7 +62,7 @@ describe('useVerifyMagicLink', () => {
     })
 
     expect(user).toEqual({ id: 'u1', email: 'a@b.c', nickname: 'a' })
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['me'] })
+    expect(setSpy).toHaveBeenCalledWith(['me'], { id: 'u1', email: 'a@b.c', nickname: 'a' })
   })
 })
 

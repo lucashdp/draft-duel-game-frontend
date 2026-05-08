@@ -33,8 +33,8 @@ export function useVerifyMagicLink() {
       const res = await api.post<{ user: User }>('/auth/verify', input)
       return res.user
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] })
+    onSuccess: (user) => {
+      queryClient.setQueryData(['me'], user)
     },
   })
 }
