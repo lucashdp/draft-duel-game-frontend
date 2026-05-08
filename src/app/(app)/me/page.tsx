@@ -9,9 +9,8 @@ export default function MePage() {
   const router = useRouter()
 
   function handleLogout() {
-    logout.mutate(undefined, {
-      onSettled: () => router.replace('/login'),
-    })
+    logout.mutate()
+    router.replace('/login')
   }
 
   if (!user) return null
@@ -24,10 +23,9 @@ export default function MePage() {
       </header>
       <button
         onClick={handleLogout}
-        disabled={logout.isPending}
-        className="rounded-md border px-4 py-2 text-sm disabled:opacity-50"
+        className="rounded-md border px-4 py-2 text-sm"
       >
-        {logout.isPending ? 'Saindo…' : 'Sair'}
+        Sair
       </button>
     </div>
   )
