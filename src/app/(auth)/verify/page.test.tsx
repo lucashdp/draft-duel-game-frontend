@@ -86,4 +86,19 @@ describe('VerifyPage', () => {
     expect(screen.getByText(/inválido ou expirado/i)).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
+
+  it('ignores unsafe stored from path and falls back to /', async () => {
+    localStorage.setItem('dd_auth_from', 'https://evil.com')
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ user: { id: 'u1', email: 'a@b.c', nickname: 'a' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    render(wrap(<VerifyPage />))
+
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/'))
+    expect(replaceMock).not.toHaveBeenCalledWith('https://evil.com')
+  })
 })

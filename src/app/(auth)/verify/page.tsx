@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useVerifyMagicLink } from '@/hooks/useAuth'
+import { isSafeRedirectPath } from '@/lib/auth'
 
 const FROM_STORAGE_KEY = 'dd_auth_from'
 
@@ -32,7 +33,7 @@ export default function VerifyPage() {
         onSuccess: () => {
           const from = localStorage.getItem(FROM_STORAGE_KEY)
           localStorage.removeItem(FROM_STORAGE_KEY)
-          router.replace(from ?? '/')
+          router.replace(isSafeRedirectPath(from) ? from! : '/')
         },
         onError: () => setStatus('error'),
       },
