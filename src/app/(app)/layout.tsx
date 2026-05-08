@@ -1,18 +1,20 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { getLoginPath } from '@/lib/auth'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.replace('/login')
+      router.replace(getLoginPath(pathname))
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router, pathname])
 
   if (isLoading) {
     return (
