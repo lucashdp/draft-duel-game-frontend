@@ -25,3 +25,16 @@ export function useRequestMagicLink() {
     mutationFn: (input: { email: string }) => api.post<void>('/auth/magic-link', input),
   })
 }
+
+export function useVerifyMagicLink() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: { token: string }) => {
+      const res = await api.post<{ user: User }>('/auth/verify', input)
+      return res.user
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
+}

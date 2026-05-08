@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useRequestMagicLink } from './useAuth'
+import { useRequestMagicLink, useVerifyMagicLink } from './useAuth'
 
 const fetchMock = vi.fn()
 
@@ -35,5 +35,33 @@ describe('useRequestMagicLink', () => {
     expect(url).toContain('/auth/magic-link')
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body as string)).toEqual({ email: 'user@example.com' })
+  })
+})
+
+describe('useVerifyMagicLink', () => {
+  it('POSTs the token, returns the user, and invalidates [me]', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ user: { id: 'u1', email: 'a@b.c', nickname: 'a' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const invalidateSpy = vi.spyOn(client, 'invalidateQueries')
+
+    const wrap = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    )
+
+    const { result } = renderHook(() => useVerifyMagicLink(), { wrapper: wrap })
+
+    let user: unknown
+    await act(async () => {
+      user = await result.current.mutateAsync({ token: 'a'.repeat(43) })
+    })
+
+    expect(user).toEqual({ id: 'u1', email: 'a@b.c', nickname: 'a' })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['me'] })
   })
 })
