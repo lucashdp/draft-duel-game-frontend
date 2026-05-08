@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const TOKEN = 'a'.repeat(43)
 const USER = { id: 'u1', email: 'user@example.com', nickname: 'user' }
-const API = 'http://localhost:3001'
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 
 test('login → verify → me happy path', async ({ page }) => {
   let meCalls = 0
