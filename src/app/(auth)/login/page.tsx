@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { useRequestMagicLink } from '@/hooks/useAuth'
-import { isSafeRedirectPath } from '@/lib/auth'
+import { FROM_STORAGE_KEY, isSafeRedirectPath } from '@/lib/auth'
 
-const FROM_STORAGE_KEY = 'dd_auth_from'
 const emailSchema = z.string().email()
 
 export default function LoginPage() {
@@ -18,8 +17,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     const from = searchParams.get('from')
-    if (from && isSafeRedirectPath(from)) {
+    if (isSafeRedirectPath(from)) {
       localStorage.setItem(FROM_STORAGE_KEY, from)
+    } else {
+      // Don't let a stale `from` from an earlier visit leak into this login.
+      localStorage.removeItem(FROM_STORAGE_KEY)
     }
   }, [searchParams])
 

@@ -37,7 +37,7 @@ describe('api refresh-on-401', () => {
     expect(fetchMock.mock.calls[1][0]).toContain('/auth/refresh')
   })
 
-  it('throws original 401 when refresh itself fails', async () => {
+  it('surfaces a 401 ApiError when refresh itself fails (no retry)', async () => {
     fetchMock
       .mockResolvedValueOnce(jsonResponse(401, { message: 'expired' }))
       .mockResolvedValueOnce(jsonResponse(401, {}))

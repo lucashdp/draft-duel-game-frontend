@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { FROM_STORAGE_KEY } from '@/lib/auth'
 
 const replaceMock = vi.fn()
 let searchParamsValue = '?token=' + 'a'.repeat(43)
@@ -48,7 +49,7 @@ describe('VerifyPage', () => {
   })
 
   it('redirects to the stored from path on success', async () => {
-    localStorage.setItem('dd_auth_from', '/championships/copa-2026')
+    localStorage.setItem(FROM_STORAGE_KEY, '/championships/copa-2026')
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ user: { id: 'u1', email: 'a@b.c', nickname: 'a' } }), {
         status: 200,
@@ -59,7 +60,7 @@ describe('VerifyPage', () => {
     render(wrap(<VerifyPage />))
 
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/championships/copa-2026'))
-    expect(localStorage.getItem('dd_auth_from')).toBeNull()
+    expect(localStorage.getItem(FROM_STORAGE_KEY)).toBeNull()
   })
 
   it('shows error state when the token is rejected', async () => {
@@ -88,7 +89,7 @@ describe('VerifyPage', () => {
   })
 
   it('ignores unsafe stored from path and falls back to /', async () => {
-    localStorage.setItem('dd_auth_from', 'https://evil.com')
+    localStorage.setItem(FROM_STORAGE_KEY, 'https://evil.com')
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ user: { id: 'u1', email: 'a@b.c', nickname: 'a' } }), {
         status: 200,

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { FROM_STORAGE_KEY } from '@/lib/auth'
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(''),
@@ -52,5 +53,13 @@ describe('LoginPage', () => {
 
     expect(screen.getByText(/email inválido/i)).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('clears a stale stored from path when visited without ?from', async () => {
+    localStorage.setItem(FROM_STORAGE_KEY, '/me')
+
+    render(wrap(<LoginPage />))
+
+    await waitFor(() => expect(localStorage.getItem(FROM_STORAGE_KEY)).toBeNull())
   })
 })
