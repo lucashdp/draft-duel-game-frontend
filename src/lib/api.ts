@@ -10,7 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+interface RequestOptions extends RequestInit {
+  _skipRefresh?: boolean
+}
+
+async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T> {
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
     ...init,
     credentials: 'include',
@@ -31,13 +35,44 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
+let inflightRefresh: Promise<void> | null = null
+
+function refreshOnce(): Promise<void> {
+  if (!inflightRefresh) {
+    inflightRefresh = executeRequest<void>('/auth/refresh', {
+      method: 'POST',
+      _skipRefresh: true,
+    }).finally(() => {
+      inflightRefresh = null
+    })
+  }
+  return inflightRefresh
+}
+
+async function request<T>(path: string, init?: RequestOptions): Promise<T> {
+  try {
+    return await executeRequest<T>(path, init)
+  } catch (err) {
+    if (
+      err instanceof ApiError &&
+      err.status === 401 &&
+      !init?._skipRefresh &&
+      !path.startsWith('/auth/')
+    ) {
+      await refreshOnce()
+      return executeRequest<T>(path, init)
+    }
+    throw err
+  }
+}
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
 
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : JSON.stringify(body),
     }),
 
   patch: <T>(path: string, body: unknown) =>
@@ -46,6 +81,5 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  delete: <T>(path: string) =>
-    request<T>(path, { method: 'DELETE' }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }
