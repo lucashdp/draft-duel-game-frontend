@@ -10,14 +10,16 @@ export const championshipSchema = z.object({
 })
 export type ChampionshipDto = z.infer<typeof championshipSchema>
 
+const hexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'expected #RRGGBB')
+
 export const teamSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   shortName: z.string(),
   abbreviation: z.string(),
   crestUrl: z.string().nullable(),
-  primaryColor: z.string(),
-  secondaryColor: z.string(),
+  primaryColor: hexColor,
+  secondaryColor: hexColor,
 })
 export type TeamDto = z.infer<typeof teamSchema>
 

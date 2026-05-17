@@ -4,7 +4,18 @@ import {
   currentRoundSchema,
   matchLineupsSchema,
   matchSummarySchema,
+  teamSchema,
 } from './catalog'
+
+const validTeam = {
+  id: '00000000-0000-4000-8000-000000000020',
+  name: 'A',
+  shortName: 'A',
+  abbreviation: 'AAA',
+  crestUrl: null,
+  primaryColor: '#000000',
+  secondaryColor: '#FFFFFF',
+}
 
 describe('catalog contracts', () => {
   it('parses a championship', () => {
@@ -78,5 +89,11 @@ describe('catalog contracts', () => {
         slug: 'x', name: 'X', kind: 'tournament',
       }),
     ).toThrow()
+  })
+
+  it('rejects team colors not in #RRGGBB form', () => {
+    expect(() => teamSchema.parse({ ...validTeam, primaryColor: '#FFF' })).toThrow()
+    expect(() => teamSchema.parse({ ...validTeam, secondaryColor: 'rgb(0,0,0)' })).toThrow()
+    expect(() => teamSchema.parse({ ...validTeam, primaryColor: 'red' })).toThrow()
   })
 })
