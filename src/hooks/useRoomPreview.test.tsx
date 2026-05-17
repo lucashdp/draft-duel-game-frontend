@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { get: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 const fakePreview = {
@@ -32,7 +30,7 @@ describe('useRoomPreview', () => {
 
   it('fetches /rooms/by-code/:code/preview', async () => {
     vi.mocked(api.get).mockResolvedValueOnce(fakePreview)
-    const { result } = renderHook(() => useRoomPreview('K7M2QH'), { wrapper: wrapper() })
+    const { result } = renderHook(() => useRoomPreview('K7M2QH'), { wrapper })
     await waitFor(() => expect(result.current.data).toBeDefined())
     expect(api.get).toHaveBeenCalledWith('/rooms/by-code/K7M2QH/preview')
     expect(result.current.data?.host.nickname).toBe('alice')

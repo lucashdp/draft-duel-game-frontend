@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 const fakeRoom = {
@@ -37,7 +35,7 @@ describe('useCreateRoom', () => {
 
   it('POSTs /rooms with matchId and returns the snapshot', async () => {
     vi.mocked(api.post).mockResolvedValueOnce(fakeRoom)
-    const { result } = renderHook(() => useCreateRoom(), { wrapper: wrapper() })
+    const { result } = renderHook(() => useCreateRoom(), { wrapper })
 
     result.current.mutate({ matchId: fakeRoom.match.id })
 

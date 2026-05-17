@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { get: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 const fakeRoom = {
@@ -37,14 +35,14 @@ describe('useRoom', () => {
 
   it('fetches /rooms/:id and parses the response', async () => {
     vi.mocked(api.get).mockResolvedValueOnce(fakeRoom)
-    const { result } = renderHook(() => useRoom(fakeRoom.id), { wrapper: wrapper() })
+    const { result } = renderHook(() => useRoom(fakeRoom.id), { wrapper })
     await waitFor(() => expect(result.current.data).toBeDefined())
     expect(api.get).toHaveBeenCalledWith(`/rooms/${fakeRoom.id}`)
     expect(result.current.data?.code).toBe('K7M2QH')
   })
 
   it('skips query when roomId is empty', () => {
-    const { result } = renderHook(() => useRoom(''), { wrapper: wrapper() })
+    const { result } = renderHook(() => useRoom(''), { wrapper })
     expect(api.get).not.toHaveBeenCalled()
     expect(result.current.isLoading).toBe(false)
   })

@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 describe('useJoinRoom', () => {
@@ -36,7 +34,7 @@ describe('useJoinRoom', () => {
       createdAt: '2026-05-17T10:00:00.000Z',
     }
     vi.mocked(api.post).mockResolvedValueOnce(fakeSnapshot)
-    const { result } = renderHook(() => useJoinRoom(), { wrapper: wrapper() })
+    const { result } = renderHook(() => useJoinRoom(), { wrapper })
     result.current.mutate({ code: 'K7M2QH' })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(api.post).toHaveBeenCalledWith('/rooms/K7M2QH/join')

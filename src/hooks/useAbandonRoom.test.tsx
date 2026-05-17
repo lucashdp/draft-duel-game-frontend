@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { post: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 describe('useAbandonRoom', () => {
@@ -36,7 +34,7 @@ describe('useAbandonRoom', () => {
       createdAt: '2026-05-17T10:00:00.000Z',
     }
     vi.mocked(api.post).mockResolvedValueOnce(fakeSnapshot)
-    const { result } = renderHook(() => useAbandonRoom(), { wrapper: wrapper() })
+    const { result } = renderHook(() => useAbandonRoom(), { wrapper })
     result.current.mutate({ roomId: fakeSnapshot.id })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(api.post).toHaveBeenCalledWith(`/rooms/${fakeSnapshot.id}/abandon`)

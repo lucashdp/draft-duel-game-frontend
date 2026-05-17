@@ -7,11 +7,9 @@ import { api } from '@/lib/api'
 
 vi.mock('@/lib/api', () => ({ api: { get: vi.fn() } }))
 
-function wrapper() {
+function wrapper({ children }: { children: ReactNode }) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  )
+  return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
 }
 
 describe('useMyRooms', () => {
@@ -19,7 +17,7 @@ describe('useMyRooms', () => {
 
   it('fetches /me/rooms with no filter and parses the response', async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ active: [], finished: [] })
-    const { result } = renderHook(() => useMyRooms(), { wrapper: wrapper() })
+    const { result } = renderHook(() => useMyRooms(), { wrapper })
     await waitFor(() => expect(result.current.data).toBeDefined())
     expect(api.get).toHaveBeenCalledWith('/me/rooms')
     expect(result.current.data?.active).toEqual([])
@@ -27,7 +25,7 @@ describe('useMyRooms', () => {
 
   it('passes ?status=active when filter provided', async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ active: [], finished: [] })
-    renderHook(() => useMyRooms('active'), { wrapper: wrapper() })
+    renderHook(() => useMyRooms('active'), { wrapper })
     await waitFor(() => expect(api.get).toHaveBeenCalled())
     expect(api.get).toHaveBeenCalledWith('/me/rooms?status=active')
   })
