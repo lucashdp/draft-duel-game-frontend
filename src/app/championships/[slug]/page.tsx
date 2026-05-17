@@ -8,7 +8,7 @@ export default async function ChampionshipPage({
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold capitalize">{slug.replace(/-/g, ' ')}</h1>
-      <p className="text-muted-foreground mt-2">Rodada atual · Partidas</p>
+      <p className="text-muted-foreground mt-2">Carregando rodada…</p>
     </main>
   )
 }
