@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { JerseyIcon } from '@/components/JerseyIcon'
-import type { Position } from '@/types/domain'
+import type { Position } from '@/lib/contracts/catalog'
 
 interface PlayerCardProps {
   shortName: string

@@ -1,4 +1,4 @@
-export type Position = 'GOL' | 'LAT' | 'ZAG' | 'MEI' | 'ATA'
+import type { Position } from '@/lib/contracts/catalog'
 
 export type ActionType =
   | 'GOL' | 'ASS' | 'RB' | 'DS' | 'PE'
@@ -16,45 +16,6 @@ export interface User {
   id: string
   email: string
   nickname: string
-}
-
-export interface Championship {
-  id: string
-  slug: string
-  name: string
-  kind: 'league' | 'cup'
-}
-
-export interface Team {
-  id: string
-  name: string
-  shortName: string
-  abbreviation: string
-  crestUrl: string | null
-  primaryColor: string
-  secondaryColor: string
-}
-
-export interface Athlete {
-  id: string
-  name: string
-  shortName: string
-  position: Position
-  jerseyNumber: number | null
-  team: Team
-}
-
-export interface Match {
-  id: string
-  championshipId: string
-  kickoffAt: string
-  status: 'scheduled' | 'live' | 'finished' | 'postponed'
-  currentMinute: number | null
-  homeScore: number | null
-  awayScore: number | null
-  homeTeam: Team
-  awayTeam: Team
-  lineupsConfirmedAt: string | null
 }
 
 export interface DraftPick {
