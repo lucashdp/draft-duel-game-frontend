@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { useCreateRoom } from '@/hooks/useCreateRoom'
 import { useAuth } from '@/hooks/useAuth'
 import { getLoginPath } from '@/lib/auth'
+import { MatchStatus } from '@/lib/contracts/rooms'
 
 export default function MatchPage({
   params,
@@ -66,7 +67,7 @@ export default function MatchPage({
         <>
           <div className="mt-4 mb-6">
             <MatchCard match={match.data} />
-            {match.data.status !== 'finished' && (
+            {match.data.status !== MatchStatus.FINISHED && (
               <Button
                 type="button"
                 className="mt-4 w-full"

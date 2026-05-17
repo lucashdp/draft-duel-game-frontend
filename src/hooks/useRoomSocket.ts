@@ -14,10 +14,14 @@ import {
   type RoomGuestJoinedPayload,
   type RoomAbandonedPayload,
 } from '@/lib/contracts/ws'
-import { roomSnapshotSchema, type RoomSnapshotDto } from '@/lib/contracts/rooms'
+import {
+  RoomStatus,
+  roomSnapshotSchema,
+  type RoomSnapshotDto,
+} from '@/lib/contracts/rooms'
 
 export function useRoomSocket(roomId: string): void {
-  const qc = useQueryClient()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!roomId) return
@@ -27,21 +31,21 @@ export function useRoomSocket(roomId: string): void {
     const handleState = (raw: unknown) => {
       const parsed = roomSnapshotSchema.safeParse(raw)
       if (parsed.success) {
-        qc.setQueryData(['room', roomId], parsed.data)
+        queryClient.setQueryData(['room', roomId], parsed.data)
       }
     }
 
     const handleGuestJoined = (payload: RoomGuestJoinedPayload) => {
-      qc.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {
+      queryClient.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {
         if (!prev) return prev
-        return { ...prev, status: payload.status as RoomSnapshotDto['status'], guest: payload.guest }
+        return { ...prev, status: payload.status, guest: payload.guest }
       })
     }
 
     const handleAbandoned = (payload: RoomAbandonedPayload) => {
-      qc.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {
+      queryClient.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {
         if (!prev) return prev
-        return { ...prev, status: 'finished', winner: payload.winner }
+        return { ...prev, status: RoomStatus.FINISHED, winner: payload.winner }
       })
     }
 
@@ -66,5 +70,5 @@ export function useRoomSocket(roomId: string): void {
       socketEmit<{ roomId: string }>(WsClientEvent.ROOM_LEAVE, { roomId })
       disconnectSocket()
     }
-  }, [qc, roomId])
+  }, [queryClient, roomId])
 }

@@ -1,35 +1,39 @@
 import { z } from 'zod'
 
 /** Wire format = lowercase (mirrors API's mapper output, matches src/types/domain.ts). */
+const ROOM_STATUS_VALUES = ['waiting', 'drafting', 'live', 'finished'] as const
 export const RoomStatus = {
-  WAITING: 'waiting',
-  DRAFTING: 'drafting',
-  LIVE: 'live',
-  FINISHED: 'finished',
+  WAITING: ROOM_STATUS_VALUES[0],
+  DRAFTING: ROOM_STATUS_VALUES[1],
+  LIVE: ROOM_STATUS_VALUES[2],
+  FINISHED: ROOM_STATUS_VALUES[3],
 } as const
-export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus]
+export type RoomStatus = (typeof ROOM_STATUS_VALUES)[number]
 
+const ROLE_VALUES = ['host', 'guest'] as const
 export const Role = {
-  HOST: 'host',
-  GUEST: 'guest',
+  HOST: ROLE_VALUES[0],
+  GUEST: ROLE_VALUES[1],
 } as const
-export type Role = (typeof Role)[keyof typeof Role]
+export type Role = (typeof ROLE_VALUES)[number]
 
+const ROOM_WINNER_VALUES = ['host', 'guest', 'draw', 'abandoned'] as const
 export const RoomWinner = {
-  HOST: 'host',
-  GUEST: 'guest',
-  DRAW: 'draw',
-  ABANDONED: 'abandoned',
+  HOST: ROOM_WINNER_VALUES[0],
+  GUEST: ROOM_WINNER_VALUES[1],
+  DRAW: ROOM_WINNER_VALUES[2],
+  ABANDONED: ROOM_WINNER_VALUES[3],
 } as const
-export type RoomWinner = (typeof RoomWinner)[keyof typeof RoomWinner]
+export type RoomWinner = (typeof ROOM_WINNER_VALUES)[number]
 
+const MATCH_STATUS_VALUES = ['scheduled', 'live', 'finished', 'postponed'] as const
 export const MatchStatus = {
-  SCHEDULED: 'scheduled',
-  LIVE: 'live',
-  FINISHED: 'finished',
-  POSTPONED: 'postponed',
+  SCHEDULED: MATCH_STATUS_VALUES[0],
+  LIVE: MATCH_STATUS_VALUES[1],
+  FINISHED: MATCH_STATUS_VALUES[2],
+  POSTPONED: MATCH_STATUS_VALUES[3],
 } as const
-export type MatchStatus = (typeof MatchStatus)[keyof typeof MatchStatus]
+export type MatchStatus = (typeof MATCH_STATUS_VALUES)[number]
 
 export const RoomErrorCode = {
   MATCH_NOT_FOUND: 'MATCH_NOT_FOUND',
@@ -69,20 +73,25 @@ const userRefSchema = z.object({
 })
 export type UserRefDto = z.infer<typeof userRefSchema>
 
+export const roomStatusSchema = z.enum(ROOM_STATUS_VALUES)
+export const roleSchema = z.enum(ROLE_VALUES)
+export const roomWinnerSchema = z.enum(ROOM_WINNER_VALUES)
+export const matchStatusSchema = z.enum(MATCH_STATUS_VALUES)
+
 export const roomSnapshotSchema = z.object({
   id: z.string().uuid(),
   code: z.string().length(6),
-  status: z.enum(Object.values(RoomStatus) as [string, ...string[]]),
+  status: roomStatusSchema,
   match: z.object({
     id: z.string().uuid(),
     kickoffAt: z.string(),
-    status: z.enum(Object.values(MatchStatus) as [string, ...string[]]),
+    status: matchStatusSchema,
     homeTeam: teamRefSchema,
     awayTeam: teamRefSchema,
   }),
   host: userRefSchema,
   guest: userRefSchema.nullable(),
-  winner: z.enum(Object.values(RoomWinner) as [string, ...string[]]).nullable(),
+  winner: roomWinnerSchema.nullable(),
   expiresAt: z.string(),
   createdAt: z.string(),
 })
@@ -90,10 +99,10 @@ export type RoomSnapshotDto = z.infer<typeof roomSnapshotSchema>
 
 export const roomPreviewSchema = z.object({
   code: z.string().length(6),
-  status: z.enum(Object.values(RoomStatus) as [string, ...string[]]),
+  status: roomStatusSchema,
   match: z.object({
     kickoffAt: z.string(),
-    status: z.enum(Object.values(MatchStatus) as [string, ...string[]]),
+    status: matchStatusSchema,
     homeTeam: teamRefPublicSchema,
     awayTeam: teamRefPublicSchema,
   }),
@@ -104,16 +113,16 @@ export type RoomPreviewDto = z.infer<typeof roomPreviewSchema>
 
 export const roomSummarySchema = z.object({
   id: z.string().uuid(),
-  status: z.enum(Object.values(RoomStatus) as [string, ...string[]]),
-  role: z.enum(Object.values(Role) as [string, ...string[]]),
+  status: roomStatusSchema,
+  role: roleSchema,
   match: z.object({
     kickoffAt: z.string(),
-    status: z.enum(Object.values(MatchStatus) as [string, ...string[]]),
+    status: matchStatusSchema,
     homeTeam: teamRefSummarySchema,
     awayTeam: teamRefSummarySchema,
   }),
   opponent: z.object({ nickname: z.string() }).nullable(),
-  winner: z.enum(Object.values(RoomWinner) as [string, ...string[]]).nullable(),
+  winner: roomWinnerSchema.nullable(),
   createdAt: z.string(),
 })
 export type RoomSummaryDto = z.infer<typeof roomSummarySchema>

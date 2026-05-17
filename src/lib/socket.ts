@@ -6,6 +6,9 @@ import {
 } from '@/lib/contracts/ws'
 
 let socket: Socket | null = null
+// Refcount so multiple consumers (lobby + future draft/match views) can share
+// one socket. Last consumer to call disconnectSocket() actually disconnects.
+let refCount = 0
 
 export function getSocket(): Socket {
   if (!socket) {
@@ -19,11 +22,13 @@ export function getSocket(): Socket {
 }
 
 export function connectSocket(): void {
+  refCount += 1
   getSocket().connect()
 }
 
 export function disconnectSocket(): void {
-  if (socket) {
+  if (refCount > 0) refCount -= 1
+  if (refCount === 0 && socket) {
     socket.disconnect()
     socket = null
   }

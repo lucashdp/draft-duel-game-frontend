@@ -17,7 +17,7 @@ test.describe('Rooms — host creates, guest joins, host sees update live', () =
     await host.page.goto('/')
     await host.page.getByRole('link', { name: /brasileirão/i }).click()
     // First match link in the round listing.
-    await host.page.locator('article[data-testid="match-card"] a').first().click()
+    await host.page.locator('[data-testid="match-card"]').first().click()
 
     // 2. Host clicks "Criar sala" and is taken to /rooms/<id>.
     await host.page.getByRole('button', { name: /criar sala/i }).click()
@@ -48,7 +48,7 @@ test.describe('Rooms — host creates, guest joins, host sees update live', () =
     // create the room
     await host.page.goto('/')
     await host.page.getByRole('link', { name: /brasileirão/i }).click()
-    await host.page.locator('article[data-testid="match-card"] a').first().click()
+    await host.page.locator('[data-testid="match-card"]').first().click()
     await host.page.getByRole('button', { name: /criar sala/i }).click()
     const inviteUrl = await host.page.getByRole('textbox').inputValue()
     const code = inviteUrl.split('/').pop()!

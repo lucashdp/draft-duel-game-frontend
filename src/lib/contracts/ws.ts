@@ -30,14 +30,18 @@ export const WsErrorCode = {
 } as const
 export type WsErrorCode = (typeof WsErrorCode)[keyof typeof WsErrorCode]
 
+import type { Role, RoomStatus, RoomWinner } from '@/lib/contracts/rooms'
+
 export interface RoomGuestJoinedPayload {
   guest: { id: string; nickname: string }
-  status: string  // wire format: 'waiting' | 'drafting' | 'live' | 'finished'
+  status: RoomStatus
 }
 
+// `winner` covers all wire values from the snapshot: host/guest on regular
+// abandon, 'draw' if both abandon, 'abandoned' when the expiration cron fires.
 export interface RoomAbandonedPayload {
-  by: 'host' | 'guest'
-  winner: 'host' | 'guest' | null
+  by: Role
+  winner: RoomWinner | null
 }
 
 export interface WsErrorPayload {
