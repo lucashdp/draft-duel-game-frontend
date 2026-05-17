@@ -32,6 +32,7 @@ export function MatchCard({ match, className }: MatchCardProps) {
   const showScore = match.status === 'live' || match.status === 'finished'
 
   return (
+    <article data-testid="match-card">
     <Link
       href={`/matches/${match.id}`}
       className={cn(
@@ -69,5 +70,6 @@ export function MatchCard({ match, className }: MatchCardProps) {
         <TeamBadge team={match.awayTeam} align="right" />
       </div>
     </Link>
+    </article>
   )
 }
