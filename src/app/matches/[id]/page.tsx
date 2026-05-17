@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { use } from 'react'
-import { useMatch, useMatchLineups } from '@/hooks/useCatalog'
+import { useChampionships, useMatch, useMatchLineups } from '@/hooks/useCatalog'
 import { MatchCard } from '@/components/MatchCard'
 import { LineupGrid } from '@/components/LineupGrid'
 
@@ -14,11 +14,18 @@ export default function MatchPage({
   const { id } = use(params)
   const match = useMatch(id)
   const lineups = useMatchLineups(id)
+  const championships = useChampionships()
+
+  const championship = match.data
+    ? championships.data?.find((c) => c.id === match.data.championshipId)
+    : undefined
+  const backHref = championship ? `/championships/${championship.slug}` : '/'
+  const backLabel = championship ? championship.name : 'Campeonatos'
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl">
-      <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-        ← Campeonatos
+      <Link href={backHref} className="text-sm text-muted-foreground hover:text-foreground">
+        ← {backLabel}
       </Link>
 
       {match.isLoading && (

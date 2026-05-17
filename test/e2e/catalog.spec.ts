@@ -81,15 +81,6 @@ test('catalog browse: home → round → match', async ({ page }) => {
     })
   })
 
-  // /me is queried by Providers in some routes — return 401 (logged-out) consistently
-  await page.route('**/me', async (route) => {
-    await route.fulfill({ status: 401, contentType: 'application/json', body: '{}' })
-  })
-
-  await page.route('**/auth/refresh', async (route) => {
-    await route.fulfill({ status: 401, contentType: 'application/json', body: '{}' })
-  })
-
   await page.goto('/')
 
   await expect(page.getByRole('heading', { name: /draft duel/i })).toBeVisible()

@@ -58,4 +58,9 @@ describe('MatchCard', () => {
     expect(screen.getByText('0')).toBeInTheDocument()
     expect(screen.getByText(/encerrad/i)).toBeInTheDocument()
   })
+
+  it('labels postponed matches', () => {
+    render(<MatchCard match={makeMatch({ status: 'postponed' })} />)
+    expect(screen.getByText(/adiado/i)).toBeInTheDocument()
+  })
 })

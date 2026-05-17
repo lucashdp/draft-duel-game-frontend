@@ -60,7 +60,9 @@ export function MatchCard({ match, className }: MatchCardProps) {
               ? `${match.currentMinute}'`
               : match.status === 'finished'
                 ? 'Encerrado'
-                : ''}
+                : match.status === 'postponed'
+                  ? 'Adiado'
+                  : ''}
           </span>
         </div>
 
