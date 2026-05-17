@@ -19,7 +19,7 @@ const championshipsSchema = z.array(championshipSchema)
 export function useChampionships() {
   return useQuery<ChampionshipDto[]>({
     queryKey: ['championships'],
-    queryFn: async () => championshipsSchema.parse(await api.get<unknown>('/championships')),
+    queryFn: async () => championshipsSchema.parse(await api.get('/championships')),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -28,7 +28,9 @@ export function useCurrentRound(slug: string) {
   return useQuery<CurrentRoundDto>({
     queryKey: ['championship', slug, 'current-round'],
     queryFn: async () =>
-      currentRoundSchema.parse(await api.get<unknown>(`/championships/${slug}/current-round`)),
+      currentRoundSchema.parse(
+        await api.get(`/championships/${encodeURIComponent(slug)}/current-round`),
+      ),
     enabled: !!slug,
     staleTime: 60 * 1000,
   })
@@ -38,7 +40,7 @@ export function useMatch(id: string) {
   return useQuery<MatchSummaryDto>({
     queryKey: ['match', id],
     queryFn: async () =>
-      matchSummarySchema.parse(await api.get<unknown>(`/matches/${id}`)),
+      matchSummarySchema.parse(await api.get(`/matches/${encodeURIComponent(id)}`)),
     enabled: !!id,
     staleTime: 60 * 1000,
   })
@@ -48,7 +50,7 @@ export function useMatchLineups(id: string) {
   return useQuery<MatchLineupsDto>({
     queryKey: ['match', id, 'lineups'],
     queryFn: async () =>
-      matchLineupsSchema.parse(await api.get<unknown>(`/matches/${id}/lineups`)),
+      matchLineupsSchema.parse(await api.get(`/matches/${encodeURIComponent(id)}/lineups`)),
     enabled: !!id,
     staleTime: 60 * 1000,
   })
