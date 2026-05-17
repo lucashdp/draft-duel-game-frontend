@@ -64,17 +64,17 @@ const teamRefSummarySchema = z.object({
 export type TeamRefSummaryDto = z.infer<typeof teamRefSummarySchema>
 
 const userRefSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   nickname: z.string(),
 })
 export type UserRefDto = z.infer<typeof userRefSchema>
 
 export const roomSnapshotSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   code: z.string().length(6),
   status: z.enum(Object.values(RoomStatus) as [string, ...string[]]),
   match: z.object({
-    id: z.string(),
+    id: z.string().uuid(),
     kickoffAt: z.string(),
     status: z.enum(Object.values(MatchStatus) as [string, ...string[]]),
     homeTeam: teamRefSchema,
@@ -103,7 +103,7 @@ export const roomPreviewSchema = z.object({
 export type RoomPreviewDto = z.infer<typeof roomPreviewSchema>
 
 export const roomSummarySchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   status: z.enum(Object.values(RoomStatus) as [string, ...string[]]),
   role: z.enum(Object.values(Role) as [string, ...string[]]),
   match: z.object({
@@ -125,6 +125,6 @@ export const myRoomsResponseSchema = z.object({
 export type MyRoomsResponseDto = z.infer<typeof myRoomsResponseSchema>
 
 export const createRoomRequestSchema = z.object({
-  matchId: z.string(),
+  matchId: z.string().uuid(),
 })
 export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>

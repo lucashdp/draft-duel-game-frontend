@@ -10,11 +10,11 @@ import {
 } from './rooms'
 
 const validSnapshot = {
-  id: '11111111-1111-1111-1111-111111111111',
+  id: '00000000-0000-4000-8000-000000000001',
   code: 'K7M2QH',
   status: 'waiting',
   match: {
-    id: 'mmmmmmmm-mmmm-mmmm-mmmm-mmmmmmmmmmmm',
+    id: '00000000-0000-4000-8000-000000000010',
     kickoffAt: '2026-05-18T18:00:00.000Z',
     status: 'scheduled',
     homeTeam: {
@@ -34,7 +34,7 @@ const validSnapshot = {
       secondaryColor: '#FFFFFF',
     },
   },
-  host: { id: 'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh', nickname: 'alice' },
+  host: { id: '00000000-0000-4000-8000-0000000000a0', nickname: 'alice' },
   guest: null,
   winner: null,
   expiresAt: '2026-05-18T20:00:00.000Z',
