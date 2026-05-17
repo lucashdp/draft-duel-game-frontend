@@ -1,6 +1,6 @@
 import { PlayerCard } from '@/components/PlayerCard'
 import type { LineupEntryDto, MatchLineupsDto, TeamDto } from '@/lib/contracts/catalog'
-import { POSITION_ORDER, type Position } from '@/types/domain'
+import { POSITION_ORDER } from '@/types/domain'
 
 interface LineupGridProps {
   lineups: MatchLineupsDto
@@ -10,8 +10,8 @@ interface LineupGridProps {
 
 function sortByPosition(entries: LineupEntryDto[]): LineupEntryDto[] {
   return [...entries].sort((a, b) => {
-    const aPos = POSITION_ORDER.indexOf(a.athlete.position as Position)
-    const bPos = POSITION_ORDER.indexOf(b.athlete.position as Position)
+    const aPos = POSITION_ORDER.indexOf(a.athlete.position)
+    const bPos = POSITION_ORDER.indexOf(b.athlete.position)
     if (aPos !== bPos) return aPos - bPos
     return a.jerseyNumber - b.jerseyNumber
   })
@@ -38,7 +38,7 @@ function TeamColumn({
           <PlayerCard
             key={e.athlete.id}
             shortName={e.athlete.shortName}
-            position={e.athlete.position as Position}
+            position={e.athlete.position}
             jerseyNumber={e.jerseyNumber}
             teamPrimaryColor={team.primaryColor}
             teamSecondaryColor={team.secondaryColor}

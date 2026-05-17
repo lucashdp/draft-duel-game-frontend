@@ -51,6 +51,7 @@ export const currentRoundSchema = z.object({
 export type CurrentRoundDto = z.infer<typeof currentRoundSchema>
 
 export const positionSchema = z.enum(['GOL', 'LAT', 'ZAG', 'MEI', 'ATA'])
+export type Position = z.infer<typeof positionSchema>
 
 export const athleteSchema = z.object({
   id: z.string().uuid(),
