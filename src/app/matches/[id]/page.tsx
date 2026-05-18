@@ -2,9 +2,15 @@
 
 import Link from 'next/link'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 import { useChampionships, useMatch, useMatchLineups } from '@/hooks/useCatalog'
 import { MatchCard } from '@/components/MatchCard'
 import { LineupGrid } from '@/components/LineupGrid'
+import { Button } from '@/components/ui/button'
+import { useCreateRoom } from '@/hooks/useCreateRoom'
+import { useAuth } from '@/hooks/useAuth'
+import { getLoginPath } from '@/lib/auth'
+import { MatchStatus } from '@/lib/contracts/rooms'
 
 export default function MatchPage({
   params,
@@ -15,6 +21,23 @@ export default function MatchPage({
   const match = useMatch(id)
   const lineups = useMatchLineups(id)
   const championships = useChampionships()
+  const router = useRouter()
+  const { user } = useAuth()
+  const createRoom = useCreateRoom()
+
+  function handleCreateRoom() {
+    if (!match.data) return
+    if (!user) {
+      router.push(getLoginPath(`/matches/${match.data.id}`))
+      return
+    }
+    createRoom.mutate(
+      { matchId: match.data.id },
+      {
+        onSuccess: (snapshot) => router.push(`/rooms/${snapshot.id}`),
+      },
+    )
+  }
 
   const championship = match.data
     ? championships.data?.find((c) => c.id === match.data.championshipId)
@@ -44,6 +67,20 @@ export default function MatchPage({
         <>
           <div className="mt-4 mb-6">
             <MatchCard match={match.data} />
+            {match.data.status !== MatchStatus.FINISHED && (
+              <Button
+                type="button"
+                className="mt-4 w-full"
+                onClick={handleCreateRoom}
+                disabled={createRoom.isPending}
+              >
+                {createRoom.isPending
+                  ? 'Criando sala…'
+                  : user
+                    ? 'Criar sala'
+                    : 'Fazer login pra criar sala'}
+              </Button>
+            )}
           </div>
 
           <section>

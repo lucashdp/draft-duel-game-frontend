@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useAuth, useLogout } from '@/hooks/useAuth'
+import { Separator } from '@/components/ui/separator'
+import { MyRoomsSection } from '@/components/rooms/MyRoomsSection'
 
 export default function MePage() {
   const { user } = useAuth()
@@ -26,6 +28,8 @@ export default function MePage() {
           <h1 className="text-2xl font-semibold">{user.nickname}</h1>
           <p className="text-sm text-muted-foreground">{user.email}</p>
         </header>
+        <MyRoomsSection />
+        <Separator />
         <button
           onClick={handleLogout}
           disabled={logout.isPending}

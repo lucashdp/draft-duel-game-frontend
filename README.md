@@ -69,7 +69,13 @@ Frontend do **Draft Duel** — jogo de draft snake 1v1 baseado em partidas ao vi
 | `useAuth()` | `useQuery` em `GET /me` → `{ user, isLoading }`. Auth via cookie httpOnly — sem decodificação de JWT no cliente |
 | `useInvalidateAuth()` | Invalida cache do `['me']` após login/logout |
 | `useSocket()` | Conecta Socket.IO no mount, desconecta no unmount |
-| `useRoom()` | Stub — implementado no plano de features da sala |
+| `useRoom(id)` | `useQuery` em `GET /rooms/:id` — dados da sala + status |
+| `useRoomPreview(code)` | `useQuery` em `GET /rooms/join/:code` — preview público do convite |
+| `useCreateRoom()` | `useMutation` em `POST /rooms` — cria sala e retorna `RoomDto` |
+| `useJoinRoom()` | `useMutation` em `POST /rooms/join/:code` — entra na sala pelo código |
+| `useAbandonRoom()` | `useMutation` em `DELETE /rooms/:id` — abandona/cancela a sala |
+| `useMyRooms()` | `useQuery` em `GET /rooms/me` — lista salas ativas e finalizadas do usuário |
+| `useRoomSocket(id)` | Subscreve o canal WS `room:<id>`, sincroniza `room:guest_joined` e `room:abandoned` no cache TanStack |
 
 ### Componentes
 
@@ -78,6 +84,19 @@ Frontend do **Draft Duel** — jogo de draft snake 1v1 baseado em partidas ao vi
 | `JerseyIcon` | Badge de camisa colorida com número do atleta. Props: `jerseyNumber`, `primaryColor`, `secondaryColor`, `size` (sm/md/lg) |
 | `PlayerCard` | Linha de atleta com posição, jersey, nome e pontuação. Suporta `isSelected`, `isRemoved`, `flashType`, `compact` |
 | `src/components/ui/` | shadcn/ui: button, input, label, badge, separator, dialog, sonner |
+
+### Rooms (lobby vertical)
+
+- `/matches/[id]` ganha o botão "Criar sala" que cria a sala e redireciona
+  pro lobby
+- `/rooms/[id]` é um dispatcher por status: `LobbyView` em `WAITING`
+  (invite link, OpponentSlot real-time, MatchSummary, botão abandonar),
+  `PendingView` placeholder em qualquer outro estado
+- `/rooms/join/[code]` é a página pública de preview do convite
+  (suporta usuário deslogado — redireciona pro login retornando ao convite)
+- `/me` lista "Minhas salas" (Ativas + Finalizadas)
+- `useRoomSocket` abre o canal `room:<id>` e sincroniza `room:guest_joined`,
+  `room:abandoned` no cache TanStack
 
 ### Tipos de domínio (`src/types/domain.ts`)
 
@@ -134,9 +153,9 @@ Cobertura atual:
 
 Os shells de rota estão prontos. As features a implementar, em ordem:
 
-1. **Auth flow** — formulário de magic link em `/login`, verificação em `/verify`, refresh de token
-2. **Catálogo** — listagem de campeonatos na home, rodada atual + partidas em `/championships/[slug]`
-3. **Criação de sala** — formulário em `/matches/[id]`, entrada via código
+1. ~~**Auth flow** — formulário de magic link em `/login`, verificação em `/verify`, refresh de token~~ ✓ feito
+2. ~~**Catálogo** — listagem de campeonatos na home, rodada atual + partidas em `/championships/[slug]`~~ ✓ feito
+3. ~~**Criação de sala** — formulário em `/matches/[id]`, entrada via código~~ ✓ feito
 4. **Draft** — `useRoom` completo, `DraftBoard`, snake pick com Socket.IO
 5. **Partida ao vivo** — `MatchScoreboard`, `MatchTimeline`, `SubstitutionDialog`
 6. **Perfil** — histórico de salas em `/me`

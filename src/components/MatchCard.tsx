@@ -33,6 +33,7 @@ export function MatchCard({ match, className }: MatchCardProps) {
 
   return (
     <Link
+      data-testid="match-card"
       href={`/matches/${match.id}`}
       className={cn(
         'block rounded-lg bg-surface px-4 py-3 transition-all',
