@@ -441,6 +441,8 @@ type MatchLiveDto = {
 
 Seleção via env: `STATS_PROVIDER=stub|<vendor>`.
 
+> **2026-05-19 update:** Cartola FC chosen as the real vendor for Brasileirão MVP via `HybridStatsProvider`. Copa do Mundo vendor remains TBD. See [`2026-05-19-cartola-integration-design.md`](./2026-05-19-cartola-integration-design.md).
+
 ### 8.3 Workers
 
 | Worker | Cadência | Função |
