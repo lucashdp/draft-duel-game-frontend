@@ -6,7 +6,7 @@ import type { MatchSummaryDto } from '@/lib/contracts/catalog'
 const baseTeam = {
   id: '00000000-0000-4000-8000-000000000020',
   name: 'A', shortName: 'A', abbreviation: 'AAA',
-  crestUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
 }
 
 function makeMatch(overrides: Partial<MatchSummaryDto> = {}): MatchSummaryDto {

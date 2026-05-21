@@ -35,7 +35,7 @@ function wrapper({ children }: { children: ReactNode }) {
 const sampleTeam = {
   id: '00000000-0000-4000-8000-000000000020',
   name: 'A', shortName: 'A', abbreviation: 'AAA',
-  crestUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
 }
 
 describe('useChampionships', () => {

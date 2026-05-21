@@ -12,7 +12,7 @@ const validTeam = {
   name: 'A',
   shortName: 'A',
   abbreviation: 'AAA',
-  crestUrl: null,
+  imageUrl: null,
   primaryColor: '#000000',
   secondaryColor: '#FFFFFF',
 }
@@ -41,12 +41,12 @@ describe('catalog contracts', () => {
       homeTeam: {
         id: '00000000-0000-4000-8000-000000000020',
         name: 'A', shortName: 'A', abbreviation: 'AAA',
-        crestUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+        imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
       },
       awayTeam: {
         id: '00000000-0000-4000-8000-000000000021',
         name: 'B', shortName: 'B', abbreviation: 'BBB',
-        crestUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
+        imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
       },
     })
     expect(parsed.status).toBe('scheduled')

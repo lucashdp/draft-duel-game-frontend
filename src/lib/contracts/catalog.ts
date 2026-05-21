@@ -17,7 +17,7 @@ export const teamSchema = z.object({
   name: z.string(),
   shortName: z.string(),
   abbreviation: z.string(),
-  crestUrl: z.string().nullable(),
+  imageUrl: z.string().nullable(),
   primaryColor: hexColor,
   secondaryColor: hexColor,
 })
