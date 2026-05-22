@@ -4,11 +4,32 @@ import { use } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRoomPreview } from '@/hooks/useRoomPreview'
 import { useJoinRoom } from '@/hooks/useJoinRoom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useInvalidateAuth } from '@/hooks/useAuth'
 import { ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { RoomErrorCode, RoomStatus } from '@/lib/contracts/rooms'
 import { getLoginPath } from '@/lib/auth'
+
+function getJoinErrorMessage(err: unknown): string {
+  if (!(err instanceof ApiError)) return 'Não foi possível entrar na sala. Tente novamente.'
+  if (err.status === 401) return 'Sua sessão expirou. Faça login novamente.'
+  switch (err.code) {
+    case RoomErrorCode.IS_HOST:
+      return 'Você é o anfitrião dessa sala.'
+    case RoomErrorCode.ROOM_NOT_OPEN:
+      return 'Essa sala já está em andamento.'
+    case RoomErrorCode.ROOM_EXPIRED:
+      return 'Esse link já expirou.'
+    case RoomErrorCode.ROOM_NOT_FOUND:
+      return 'Sala não encontrada.'
+    case RoomErrorCode.MATCH_INELIGIBLE:
+      return 'Essa partida não está mais disponível pra entrar.'
+    case RoomErrorCode.RACE_LOST:
+      return 'Outro jogador entrou primeiro. Essa sala agora está cheia.'
+    default:
+      return 'Não foi possível entrar na sala. Tente novamente.'
+  }
+}
 
 export default function RoomJoinPage({
   params,
@@ -18,6 +39,7 @@ export default function RoomJoinPage({
   const { code } = use(params)
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
+  const invalidateAuth = useInvalidateAuth()
   const preview = useRoomPreview(code)
   const join = useJoinRoom()
 
@@ -30,6 +52,12 @@ export default function RoomJoinPage({
       { code },
       {
         onSuccess: (snapshot) => router.push(`/rooms/${snapshot.id}`),
+        onError: (err) => {
+          if (err instanceof ApiError && err.status === 401) {
+            invalidateAuth()
+            router.push(getLoginPath(`/rooms/join/${code}`))
+          }
+        },
       },
     )
   }
@@ -72,12 +100,6 @@ export default function RoomJoinPage({
     )
   }
 
-  const joinError = join.error
-  const joinErrorCode =
-    joinError instanceof ApiError
-      ? ((joinError as ApiError & { code?: string }).code ?? null)
-      : null
-
   return (
     <main className="container mx-auto max-w-md px-4 py-12 space-y-6">
       <header className="text-center space-y-2">
@@ -103,19 +125,9 @@ export default function RoomJoinPage({
         </p>
       </div>
 
-      {joinErrorCode === RoomErrorCode.IS_HOST && (
-        <p className="text-sm text-event-negative text-center">
-          Você é o anfitrião dessa sala.
-        </p>
-      )}
-      {joinErrorCode === RoomErrorCode.ROOM_NOT_OPEN && (
-        <p className="text-sm text-event-negative text-center">
-          Essa sala já está em andamento.
-        </p>
-      )}
-      {joinErrorCode === RoomErrorCode.ROOM_EXPIRED && (
-        <p className="text-sm text-event-negative text-center">
-          Esse link já expirou.
+      {join.isError && (
+        <p role="alert" className="text-sm text-event-negative text-center">
+          {getJoinErrorMessage(join.error)}
         </p>
       )}
 
@@ -125,7 +137,16 @@ export default function RoomJoinPage({
         onClick={handleJoin}
         disabled={join.isPending}
       >
-        {join.isPending ? 'Entrando…' : user ? 'Entrar na sala' : 'Fazer login pra entrar'}
+        {join.isPending ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            Entrando…
+          </>
+        ) : user ? (
+          'Entrar na sala'
+        ) : (
+          'Fazer login pra entrar'
+        )}
       </Button>
     </main>
   )
