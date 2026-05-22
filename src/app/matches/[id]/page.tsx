@@ -74,11 +74,16 @@ export default function MatchPage({
                 onClick={handleCreateRoom}
                 disabled={createRoom.isPending}
               >
-                {createRoom.isPending
-                  ? 'Criando sala…'
-                  : user
-                    ? 'Criar sala'
-                    : 'Fazer login pra criar sala'}
+                {createRoom.isPending ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Criando sala…
+                  </>
+                ) : user ? (
+                  'Criar sala'
+                ) : (
+                  'Fazer login pra criar sala'
+                )}
               </Button>
             )}
           </div>
