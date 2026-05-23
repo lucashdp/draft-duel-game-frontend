@@ -7,28 +7,20 @@ import { useJoinRoom } from '@/hooks/useJoinRoom'
 import { useAuth, useInvalidateAuth } from '@/hooks/useAuth'
 import { ApiError } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { RoomErrorCode, RoomStatus } from '@/lib/contracts/rooms'
+import { RoomStatus } from '@/lib/contracts/rooms'
+import { formatJoinError } from '@/lib/format-room'
 import { getLoginPath } from '@/lib/auth'
 
-function getJoinErrorMessage(err: unknown): string {
-  if (!(err instanceof ApiError)) return 'Não foi possível entrar na sala. Tente novamente.'
-  if (err.status === 401) return 'Sua sessão expirou. Faça login novamente.'
-  switch (err.code) {
-    case RoomErrorCode.IS_HOST:
-      return 'Você é o anfitrião dessa sala.'
-    case RoomErrorCode.ROOM_NOT_OPEN:
-      return 'Essa sala já está em andamento.'
-    case RoomErrorCode.ROOM_EXPIRED:
-      return 'Esse link já expirou.'
-    case RoomErrorCode.ROOM_NOT_FOUND:
-      return 'Sala não encontrada.'
-    case RoomErrorCode.MATCH_INELIGIBLE:
-      return 'Essa partida não está mais disponível pra entrar.'
-    case RoomErrorCode.RACE_LOST:
-      return 'Outro jogador entrou primeiro. Essa sala agora está cheia.'
-    default:
-      return 'Não foi possível entrar na sala. Tente novamente.'
-  }
+function getJoinButtonLabel({
+  isPending,
+  isAuthed,
+}: {
+  isPending: boolean
+  isAuthed: boolean
+}): string {
+  if (isPending) return 'Entrando…'
+  if (!isAuthed) return 'Fazer login pra entrar'
+  return 'Entrar na sala'
 }
 
 export default function RoomJoinPage({
@@ -127,7 +119,7 @@ export default function RoomJoinPage({
 
       {join.isError && (
         <p role="alert" className="text-sm text-event-negative text-center">
-          {getJoinErrorMessage(join.error)}
+          {formatJoinError(join.error)}
         </p>
       )}
 
@@ -137,16 +129,10 @@ export default function RoomJoinPage({
         onClick={handleJoin}
         disabled={join.isPending}
       >
-        {join.isPending ? (
-          <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Entrando…
-          </>
-        ) : user ? (
-          'Entrar na sala'
-        ) : (
-          'Fazer login pra entrar'
+        {join.isPending && (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         )}
+        {getJoinButtonLabel({ isPending: join.isPending, isAuthed: Boolean(user) })}
       </Button>
     </main>
   )

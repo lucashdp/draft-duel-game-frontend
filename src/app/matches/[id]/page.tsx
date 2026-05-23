@@ -12,6 +12,18 @@ import { useAuth } from '@/hooks/useAuth'
 import { getLoginPath } from '@/lib/auth'
 import { MatchStatus } from '@/lib/contracts/rooms'
 
+function getCreateRoomButtonLabel({
+  isPending,
+  isAuthed,
+}: {
+  isPending: boolean
+  isAuthed: boolean
+}): string {
+  if (isPending) return 'Criando sala…'
+  if (!isAuthed) return 'Fazer login pra criar sala'
+  return 'Criar sala'
+}
+
 export default function MatchPage({
   params,
 }: {
@@ -74,16 +86,13 @@ export default function MatchPage({
                 onClick={handleCreateRoom}
                 disabled={createRoom.isPending}
               >
-                {createRoom.isPending ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Criando sala…
-                  </>
-                ) : user ? (
-                  'Criar sala'
-                ) : (
-                  'Fazer login pra criar sala'
+                {createRoom.isPending && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 )}
+                {getCreateRoomButtonLabel({
+                  isPending: createRoom.isPending,
+                  isAuthed: Boolean(user),
+                })}
               </Button>
             )}
           </div>
