@@ -18,7 +18,10 @@ import { RoomStatus, type RoomSnapshotDto } from '@/lib/contracts/rooms'
  *
  * Payloads are validated at runtime with Zod (same pattern as useRoomSocket's
  * room:state handler). Malformed payloads are dropped + logged so the cache
- * never gets corrupted by a regression or version skew on the server.
+ * never gets corrupted by a regression or version skew on the server, and
+ * the room snapshot is invalidated so the next REST refetch pulls the
+ * authoritative state — otherwise version-skew could pin the UI to a stale
+ * snapshot until the user reloads the page.
  */
 export function useDraftSocket(roomId: string): void {
   const queryClient = useQueryClient()
@@ -30,6 +33,7 @@ export function useDraftSocket(roomId: string): void {
       const parsed = draftPickMadePayloadSchema.safeParse(raw)
       if (!parsed.success) {
         console.error('[useDraftSocket] invalid draft:pick_made payload', parsed.error)
+        queryClient.invalidateQueries({ queryKey: ['room', roomId] })
         return
       }
       const payload = parsed.data
@@ -59,6 +63,7 @@ export function useDraftSocket(roomId: string): void {
       const parsed = draftCurrentPickPayloadSchema.safeParse(raw)
       if (!parsed.success) {
         console.error('[useDraftSocket] invalid draft:current_pick payload', parsed.error)
+        queryClient.invalidateQueries({ queryKey: ['room', roomId] })
         return
       }
       const payload = parsed.data
@@ -79,6 +84,7 @@ export function useDraftSocket(roomId: string): void {
       const parsed = matchStartedPayloadSchema.safeParse(raw)
       if (!parsed.success) {
         console.error('[useDraftSocket] invalid match:started payload', parsed.error)
+        queryClient.invalidateQueries({ queryKey: ['room', roomId] })
         return
       }
       queryClient.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {

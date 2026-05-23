@@ -24,6 +24,9 @@ const TOAST_BY_CODE: Partial<Record<string, string>> = {
   [WsErrorCode.INVALID_PICK_NUMBER]: 'Pick desincronizado — atualizando…',
   [WsErrorCode.PICK_RACE_LOST]: 'Outro jogador foi mais rápido.',
   [WsErrorCode.NOT_DRAFTING]: 'O draft não está mais em andamento.',
+  // UNKNOWN covers ack timeout + malformed ack from useMakePick — both
+  // suggest a transient connection issue, so orient the user toward retry.
+  UNKNOWN: 'Conexão instável — tente novamente.',
 }
 
 interface Props {
