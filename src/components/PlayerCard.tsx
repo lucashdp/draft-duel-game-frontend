@@ -4,12 +4,16 @@ import { cn } from '@/lib/utils'
 import { JerseyIcon } from '@/components/JerseyIcon'
 import type { Position } from '@/lib/contracts/catalog'
 
+/** Neutral team colors used when a team has no palette configured. */
+const DEFAULT_TEAM_PRIMARY = '#1f2937'
+const DEFAULT_TEAM_SECONDARY = '#ffffff'
+
 interface PlayerCardProps {
   shortName: string
   position: Position
   jerseyNumber: number | null
-  teamPrimaryColor: string
-  teamSecondaryColor: string
+  teamPrimaryColor: string | null
+  teamSecondaryColor: string | null
   score?: number
   onClick?: () => void
   isSelected?: boolean
@@ -49,8 +53,8 @@ export function PlayerCard({
       </span>
       <JerseyIcon
         jerseyNumber={jerseyNumber}
-        primaryColor={teamPrimaryColor}
-        secondaryColor={teamSecondaryColor}
+        primaryColor={teamPrimaryColor ?? DEFAULT_TEAM_PRIMARY}
+        secondaryColor={teamSecondaryColor ?? DEFAULT_TEAM_SECONDARY}
         size="sm"
       />
       <span className="text-sm font-medium truncate flex-1">{shortName}</span>

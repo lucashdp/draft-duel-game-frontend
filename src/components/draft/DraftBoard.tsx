@@ -2,19 +2,26 @@
 
 import { cn } from '@/lib/utils'
 import { PlayerCard } from '@/components/PlayerCard'
-import type { DraftPickDto } from '@/lib/contracts/draft'
-import type { Role, TeamRefDto } from '@/lib/contracts/rooms'
-
-const SNAKE_ORDER: Role[] = ['host', 'guest', 'guest', 'host', 'host', 'guest', 'guest', 'host', 'host', 'guest']
+import { SNAKE_ORDER, type DraftPickDto } from '@/lib/contracts/draft'
+import type { TeamRefDto } from '@/lib/contracts/rooms'
 
 interface Props {
   picks: DraftPickDto[]
   currentPickNumber: number
   homeTeam: TeamRefDto
   awayTeam: TeamRefDto
+  hostNickname: string
+  guestNickname: string
 }
 
-export function DraftBoard({ picks, currentPickNumber, homeTeam, awayTeam }: Props) {
+export function DraftBoard({
+  picks,
+  currentPickNumber,
+  homeTeam,
+  awayTeam,
+  hostNickname,
+  guestNickname,
+}: Props) {
   const byPickNumber = new Map(picks.map((p) => [p.pickNumber, p]))
 
   function teamFor(pick: DraftPickDto): TeamRefDto {
@@ -56,8 +63,8 @@ export function DraftBoard({ picks, currentPickNumber, homeTeam, awayTeam }: Pro
             shortName={pick.athlete.shortName}
             position={pick.athlete.position}
             jerseyNumber={pick.athlete.jerseyNumber}
-            teamPrimaryColor={team.primaryColor ?? '#1f2937'}
-            teamSecondaryColor={team.secondaryColor ?? '#ffffff'}
+            teamPrimaryColor={team.primaryColor}
+            teamSecondaryColor={team.secondaryColor}
           />
         </div>
       </div>
@@ -70,11 +77,11 @@ export function DraftBoard({ picks, currentPickNumber, homeTeam, awayTeam }: Pro
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">Host</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">@{hostNickname}</p>
         {hostSlots.map((n) => renderSlot(n))}
       </div>
       <div className="space-y-2">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">Guest</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground">@{guestNickname}</p>
         {guestSlots.map((n) => renderSlot(n))}
       </div>
     </div>

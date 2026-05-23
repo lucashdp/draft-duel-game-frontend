@@ -52,7 +52,9 @@ export const currentRoundSchema = z.object({
 })
 export type CurrentRoundDto = z.infer<typeof currentRoundSchema>
 
-export const positionSchema = z.enum(['GOL', 'LAT', 'ZAG', 'MEI', 'ATA'])
+/** Canonical order of mandatory draft positions. */
+export const POSITIONS = ['GOL', 'LAT', 'ZAG', 'MEI', 'ATA'] as const
+export const positionSchema = z.enum(POSITIONS)
 export type Position = z.infer<typeof positionSchema>
 
 export const athleteSchema = z.object({

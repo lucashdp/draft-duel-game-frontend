@@ -1,6 +1,18 @@
 import { z } from 'zod'
 import { positionSchema } from '@/lib/contracts/catalog'
-import { roleSchema } from '@/lib/contracts/shared'
+import { roleSchema, type Role } from '@/lib/contracts/shared'
+
+/**
+ * Snake draft constants. Source of truth lives in the API repo
+ * (see `draft-design.md` §5.3). If the backend introduces dynamic snake
+ * configuration (e.g. `Room.snakeStartRole`), prefer reading the order from
+ * `DraftStateDto` instead of this constant.
+ */
+export const TOTAL_PICKS = 10
+export const PICKS_PER_ROLE = 5
+export const SNAKE_ORDER: readonly Role[] = [
+  'host', 'guest', 'guest', 'host', 'host', 'guest', 'guest', 'host', 'host', 'guest',
+]
 
 export const TEAM_SIDES = ['home', 'away'] as const
 export type TeamSide = (typeof TEAM_SIDES)[number]
@@ -43,7 +55,7 @@ export type DraftStateDto = z.infer<typeof draftStateSchema>
 // WS payloads
 export const draftPickMadePayloadSchema = z.object({
   pick: draftPickSchema,
-  nextPickNumber: z.number().int().min(0).max(10).nullable(),
+  nextPickNumber: z.number().int().min(0).max(9).nullable(),
   currentRole: roleSchema.nullable(),
 })
 export type DraftPickMadePayload = z.infer<typeof draftPickMadePayloadSchema>
