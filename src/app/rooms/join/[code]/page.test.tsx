@@ -102,6 +102,7 @@ describe('/rooms/join/[code]', () => {
       winner: null,
       expiresAt: preview.expiresAt,
       createdAt: '2026-05-17T10:00:00.000Z',
+      draft: null,
     })
     await act(async () => {
       wrap(<RoomJoinPage params={Promise.resolve({ code: 'K7M2QH' })} />)
