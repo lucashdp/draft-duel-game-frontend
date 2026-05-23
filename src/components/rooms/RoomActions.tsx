@@ -61,7 +61,14 @@ export function RoomActions({ roomId, showAbandon }: Props) {
               onClick={handleConfirm}
               disabled={abandon.isPending}
             >
-              {abandon.isPending ? 'Abandonando…' : 'Abandonar sala'}
+              {abandon.isPending ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Abandonando…
+                </>
+              ) : (
+                'Abandonar sala'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

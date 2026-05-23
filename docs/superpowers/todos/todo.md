@@ -1,2 +1,0 @@
-- Colocar um loading no botão de criar sala (verificar os demais botões)
-- Entrar na sala não funciona: quando uma passoa loga, convida outra, a outra pessoa entra no link e clica em entrar na sala, após o seu login, clica em entrar na sala e nada acontece
