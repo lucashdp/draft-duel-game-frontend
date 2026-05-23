@@ -44,4 +44,30 @@ describe('useMakePick', () => {
     await waitFor(() => expect(result.current.isError).toBe(true))
     expect((result.current.error as Error & { code?: string })?.code).toBe('NOT_YOUR_TURN')
   })
+
+  it('rejects with UNKNOWN if the ack never arrives (timeout)', async () => {
+    vi.useFakeTimers()
+    try {
+      emitImpl.mockImplementation(() => {
+        // Never invoke the ack — simulate a dropped response.
+      })
+      const { result } = renderHook(() => useMakePick(ROOM_ID), { wrapper })
+      result.current.mutate({ pickNumber: 0, athleteId: ATH_ID })
+      await vi.advanceTimersByTimeAsync(5000)
+      await vi.waitFor(() => expect(result.current.isError).toBe(true))
+      expect((result.current.error as Error & { code?: string })?.code).toBe('UNKNOWN')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('rejects with UNKNOWN if the ack payload is malformed', async () => {
+    emitImpl.mockImplementation((_e, _p, ack) => {
+      ack?.({ wat: 'not a valid ack' })
+    })
+    const { result } = renderHook(() => useMakePick(ROOM_ID), { wrapper })
+    result.current.mutate({ pickNumber: 0, athleteId: ATH_ID })
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    expect((result.current.error as Error & { code?: string })?.code).toBe('UNKNOWN')
+  })
 })
