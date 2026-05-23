@@ -27,6 +27,15 @@ export const WsErrorCode = {
   ROOM_NOT_FOUND: 'ROOM_NOT_FOUND',
   VALIDATION: 'VALIDATION',
   INTERNAL: 'INTERNAL',
+  // Draft
+  NOT_DRAFTING: 'NOT_DRAFTING',
+  INVALID_PICK_NUMBER: 'INVALID_PICK_NUMBER',
+  NOT_YOUR_TURN: 'NOT_YOUR_TURN',
+  LINEUP_NOT_READY: 'LINEUP_NOT_READY',
+  ATHLETE_NOT_IN_LINEUP: 'ATHLETE_NOT_IN_LINEUP',
+  ATHLETE_ALREADY_PICKED: 'ATHLETE_ALREADY_PICKED',
+  POSITION_ALREADY_FILLED: 'POSITION_ALREADY_FILLED',
+  PICK_RACE_LOST: 'PICK_RACE_LOST',
 } as const
 export type WsErrorCode = (typeof WsErrorCode)[keyof typeof WsErrorCode]
 
@@ -48,3 +57,9 @@ export interface WsErrorPayload {
   code: WsErrorCode
   message: string
 }
+
+export type {
+  DraftPickMadePayload,
+  DraftCurrentPickPayload,
+  MatchStartedPayload,
+} from '@/lib/contracts/draft'

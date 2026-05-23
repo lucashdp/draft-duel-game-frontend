@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { draftStateSchema } from '@/lib/contracts/draft'
 
 /** Wire format = lowercase (mirrors API's mapper output, matches src/types/domain.ts). */
 const ROOM_STATUS_VALUES = ['waiting', 'drafting', 'live', 'finished'] as const
@@ -10,12 +11,9 @@ export const RoomStatus = {
 } as const
 export type RoomStatus = (typeof ROOM_STATUS_VALUES)[number]
 
-const ROLE_VALUES = ['host', 'guest'] as const
-export const Role = {
-  HOST: ROLE_VALUES[0],
-  GUEST: ROLE_VALUES[1],
-} as const
-export type Role = (typeof ROLE_VALUES)[number]
+import { Role, roleSchema } from '@/lib/contracts/shared'
+export { Role, roleSchema }
+export type { Role as Role } from '@/lib/contracts/shared'
 
 const ROOM_WINNER_VALUES = ['host', 'guest', 'draw', 'abandoned'] as const
 export const RoomWinner = {
@@ -74,7 +72,6 @@ const userRefSchema = z.object({
 export type UserRefDto = z.infer<typeof userRefSchema>
 
 export const roomStatusSchema = z.enum(ROOM_STATUS_VALUES)
-export const roleSchema = z.enum(ROLE_VALUES)
 export const roomWinnerSchema = z.enum(ROOM_WINNER_VALUES)
 export const matchStatusSchema = z.enum(MATCH_STATUS_VALUES)
 
@@ -94,6 +91,7 @@ export const roomSnapshotSchema = z.object({
   winner: roomWinnerSchema.nullable(),
   expiresAt: z.string(),
   createdAt: z.string(),
+  draft: draftStateSchema.nullable(),
 })
 export type RoomSnapshotDto = z.infer<typeof roomSnapshotSchema>
 
