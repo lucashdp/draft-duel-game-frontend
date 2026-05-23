@@ -60,6 +60,28 @@ describe('api refresh-on-401', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
+  it('omits Content-Type when POST has no body (Fastify rejects empty body + json header)', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { ok: true }))
+
+    await api.post('/rooms/ABC123/join')
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit
+    const headers = init.headers as Record<string, string>
+    expect(headers['Content-Type']).toBeUndefined()
+    expect(init.body).toBeUndefined()
+  })
+
+  it('keeps Content-Type when POST has a body', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { ok: true }))
+
+    await api.post('/rooms', { matchId: 'm-1' })
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit
+    const headers = init.headers as Record<string, string>
+    expect(headers['Content-Type']).toBe('application/json')
+    expect(init.body).toBe(JSON.stringify({ matchId: 'm-1' }))
+  })
+
   it('shares a single refresh promise across concurrent 401s', async () => {
     let refreshCallCount = 0
     let meCalls = 0

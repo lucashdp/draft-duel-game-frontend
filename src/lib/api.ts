@@ -16,11 +16,12 @@ interface RequestOptions extends RequestInit {
 }
 
 async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T> {
+  const hasBody = init?.body !== undefined && init?.body !== null
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
     ...init,
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
+      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
       ...init?.headers,
     },
   })
