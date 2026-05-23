@@ -6,6 +6,7 @@ import { useRoomSocket } from '@/hooks/useRoomSocket'
 import { useAuth } from '@/hooks/useAuth'
 import { RoomStatus } from '@/lib/contracts/rooms'
 import { LobbyView } from './lobby-view'
+import { DraftView } from './draft-view'
 import { PendingView } from './pending-view'
 
 export default function RoomPage({
@@ -32,6 +33,9 @@ export default function RoomPage({
         const isHost = user?.id === room.data.host.id
         if (room.data.status === RoomStatus.WAITING) {
           return <LobbyView room={room.data} isHost={isHost} />
+        }
+        if (room.data.status === RoomStatus.DRAFTING) {
+          return <DraftView room={room.data} isHost={isHost} />
         }
         return <PendingView room={room.data} />
       })()}
