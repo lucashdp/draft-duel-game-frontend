@@ -28,7 +28,12 @@ export function InviteLinkCard({ code }: Props) {
         Compartilhe este link
       </label>
       <div className="flex gap-2">
-        <Input value={url} readOnly className="font-mono text-sm" />
+        <Input
+          value={url}
+          readOnly
+          className="font-mono text-sm"
+          data-testid="invite-url"
+        />
         <Button type="button" onClick={handleCopy} variant="secondary">
           Copiar
         </Button>

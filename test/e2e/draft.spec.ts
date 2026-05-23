@@ -20,7 +20,8 @@ test.describe('Draft — host and guest snake-draft a full lineup', () => {
     await host.page.locator('[data-testid="match-card"]').first().click()
     await host.page.getByRole('button', { name: /criar sala/i }).click()
     await expect(host.page).toHaveURL(/\/rooms\/[0-9a-f-]+/)
-    const code = (await host.page.getByRole('textbox').inputValue()).split('/').pop()!
+    const inviteUrl = await host.page.getByTestId('invite-url').inputValue()
+    const code = new URL(inviteUrl).pathname.split('/').pop()!
 
     // 2. Guest joins
     await guest.page.goto(`/rooms/join/${code}`)
