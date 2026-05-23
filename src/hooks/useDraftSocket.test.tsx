@@ -96,4 +96,21 @@ describe('useDraftSocket', () => {
     unmount()
     expect(listeners.size).toBe(0)
   })
+
+  it('drops the update and invalidates the room query when payload is malformed', () => {
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { qc, Wrapper } = wrapper(makeSnapshot())
+    const invalidateSpy = vi.spyOn(qc, 'invalidateQueries')
+    renderHook(() => useDraftSocket(ROOM_ID), { wrapper: Wrapper })
+    const before = qc.getQueryData<RoomSnapshotDto>(['room', ROOM_ID])
+
+    act(() => listeners.get('draft:pick_made')!({ garbage: true }))
+
+    expect(qc.getQueryData(['room', ROOM_ID])).toBe(before)
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['room', ROOM_ID] })
+    expect(errSpy).toHaveBeenCalled()
+
+    errSpy.mockRestore()
+    invalidateSpy.mockRestore()
+  })
 })
