@@ -36,7 +36,7 @@ export function ConfirmPickDialog({ athlete, teamName, onConfirm, onCancel, isPe
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" disabled={isPending} onClick={onCancel} />}>
+          <DialogClose render={<Button variant="outline" disabled={isPending} />}>
             Cancelar
           </DialogClose>
           <Button onClick={onConfirm} disabled={isPending}>

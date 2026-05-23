@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PlayerCard } from '@/components/PlayerCard'
-import { type Position } from '@/lib/contracts/catalog'
-import { POSITIONS } from '@/lib/draft-positions-remaining'
+import { POSITIONS, type Position } from '@/lib/contracts/catalog'
 import type { DraftPoolEntryDto } from '@/lib/contracts/draft'
 import type { TeamRefDto } from '@/lib/contracts/rooms'
 
@@ -16,6 +15,8 @@ interface Props {
   homeTeam: TeamRefDto
   awayTeam: TeamRefDto
   positionsRemaining: Position[]
+  hostNickname: string
+  guestNickname: string
   onPick: (athleteId: string) => void
   onRefresh: () => void
 }
@@ -27,10 +28,20 @@ export function DraftPool({
   homeTeam,
   awayTeam,
   positionsRemaining,
+  hostNickname,
+  guestNickname,
   onPick,
   onRefresh,
 }: Props) {
   const [positionFilter, setPositionFilter] = useState<Position | null>(null)
+
+  // If the currently-selected position runs out (own picks filled it), drop
+  // the filter so the pool isn't silently empty.
+  useEffect(() => {
+    if (positionFilter !== null && !positionsRemaining.includes(positionFilter)) {
+      setPositionFilter(null)
+    }
+  }, [positionFilter, positionsRemaining])
 
   if (!lineupReady) {
     return (
@@ -68,13 +79,13 @@ export function DraftPool({
           shortName={entry.athlete.shortName}
           position={entry.athlete.position}
           jerseyNumber={entry.athlete.jerseyNumber}
-          teamPrimaryColor={team.primaryColor ?? '#1f2937'}
-          teamSecondaryColor={team.secondaryColor ?? '#ffffff'}
+          teamPrimaryColor={team.primaryColor}
+          teamSecondaryColor={team.secondaryColor}
           onClick={isInteractive ? () => onPick(entry.athlete.id) : undefined}
         />
         {isPicked && (
           <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground pl-2 pt-0.5">
-            picked by @{entry.pickedByRole}
+            picked by @{entry.pickedByRole === 'host' ? hostNickname : guestNickname}
           </p>
         )}
       </div>

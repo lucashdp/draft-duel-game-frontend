@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { DraftBoard } from '@/components/draft/DraftBoard'
@@ -49,11 +49,22 @@ export function DraftView({ room, isHost }: Props) {
     queryClient.invalidateQueries({ queryKey: ['room', room.id] })
   }, [queryClient, room.id])
 
+  // If the selected athlete becomes unavailable mid-confirmation (opponent
+  // picked them via WS race), close the dialog so the user isn't stuck looking
+  // at a stale choice.
+  useEffect(() => {
+    if (!selected) return
+    const entry = draft?.pool.find((p) => p.athlete.id === selected.id)
+    if (entry?.pickedByRole) setSelected(null)
+  }, [selected, draft?.pool])
+
   if (!draft) {
     return null
   }
 
-  const opponentNickname = isHost ? (room.guest?.nickname ?? '') : room.host.nickname
+  const hostNickname = room.host.nickname
+  const guestNickname = room.guest?.nickname ?? 'oponente'
+  const opponentNickname = isHost ? guestNickname : hostNickname
   const isMyTurn = draft.currentRole === myRole
   const canPick = isMyTurn && draft.lineupReady && !makePick.isPending
 
@@ -108,6 +119,8 @@ export function DraftView({ room, isHost }: Props) {
         currentPickNumber={draft.currentPickNumber}
         homeTeam={room.match.homeTeam}
         awayTeam={room.match.awayTeam}
+        hostNickname={hostNickname}
+        guestNickname={guestNickname}
       />
       <DraftPool
         pool={draft.pool}
@@ -116,6 +129,8 @@ export function DraftView({ room, isHost }: Props) {
         homeTeam={room.match.homeTeam}
         awayTeam={room.match.awayTeam}
         positionsRemaining={positionsRemaining}
+        hostNickname={hostNickname}
+        guestNickname={guestNickname}
         onPick={handlePoolClick}
         onRefresh={refreshSnapshot}
       />
