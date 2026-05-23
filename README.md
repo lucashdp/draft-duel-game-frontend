@@ -98,6 +98,17 @@ Frontend do **Draft Duel** — jogo de draft snake 1v1 baseado em partidas ao vi
 - `useRoomSocket` abre o canal `room:<id>` e sincroniza `room:guest_joined`,
   `room:abandoned` no cache TanStack
 
+### Draft (vertical 4)
+
+`/rooms/[id]` renderiza `<DraftView>` quando o status é `drafting`. Componentes em `src/components/draft/`:
+
+- `DraftBoard` — 10 slots em ordem snake (5 host / 5 guest)
+- `DraftPool` — pool em duas colunas (home/away) com chips de filtro por posição
+- `TurnBanner` — banner com o estado do pick atual ("Sua vez", "Vez de @oponente", "Aguardando escalação", "Draft concluído")
+- `ConfirmPickDialog` — confirma o pick antes de emitir `draft:pick` via WS
+
+Hooks: `useMakePick` (mutation com ack do socket), `useDraftSocket` (listeners para `draft:pick_made` / `draft:current_pick` / `match:started` que patcham o cache TanStack). Contratos Zod em `src/lib/contracts/draft.ts` + extensão de `rooms.ts` (`RoomSnapshot.draft`) e `ws.ts` (códigos de erro de draft). Spec: [`docs/superpowers/specs/2026-05-23-draft-design.md`](docs/superpowers/specs/2026-05-23-draft-design.md).
+
 ### Tipos de domínio (`src/types/domain.ts`)
 
 `Position`, `ActionType`, `RoomStatus`, `Role`, `Winner`, `User`, `Championship`, `Team`, `Athlete`, `Match`, `DraftPick`, `LineupInterval`, `Room`, `MatchEvent`, `ACTION_LABELS`, `POSITION_ORDER`
