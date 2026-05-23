@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { positionSchema } from '@/lib/contracts/catalog'
-import { roleSchema } from '@/lib/contracts/rooms'
+import { roleSchema } from '@/lib/contracts/shared'
 
 export const TEAM_SIDES = ['home', 'away'] as const
 export type TeamSide = (typeof TEAM_SIDES)[number]
