@@ -27,6 +27,7 @@ describe('DraftPool', () => {
         pool={[]} disabled lineupReady={false}
         homeTeam={home} awayTeam={away}
         positionsRemaining={['GOL','LAT','ZAG','MEI','ATA']}
+        hostNickname="alice" guestNickname="bob"
         onPick={vi.fn()} onRefresh={onRefresh}
       />,
     )
@@ -43,6 +44,7 @@ describe('DraftPool', () => {
         pool={pool} disabled={false} lineupReady={true}
         homeTeam={home} awayTeam={away}
         positionsRemaining={['GOL','LAT','ZAG','MEI','ATA']}
+        hostNickname="alice" guestNickname="bob"
         onPick={vi.fn()} onRefresh={vi.fn()}
       />,
     )
@@ -60,6 +62,7 @@ describe('DraftPool', () => {
         pool={pool} disabled={false} lineupReady={true}
         homeTeam={home} awayTeam={away}
         positionsRemaining={['GOL','LAT','ZAG','MEI','ATA']}
+        hostNickname="alice" guestNickname="bob"
         onPick={vi.fn()} onRefresh={vi.fn()}
       />,
     )
@@ -79,6 +82,7 @@ describe('DraftPool', () => {
         pool={pool} disabled={false} lineupReady={true}
         homeTeam={home} awayTeam={away}
         positionsRemaining={['GOL','LAT','ZAG','MEI','ATA']}
+        hostNickname="alice" guestNickname="bob"
         onPick={onPick} onRefresh={vi.fn()}
       />,
     )
@@ -97,6 +101,7 @@ describe('DraftPool', () => {
         pool={pool} disabled={false} lineupReady={true}
         homeTeam={home} awayTeam={away}
         positionsRemaining={['GOL','LAT','ZAG','MEI','ATA']}
+        hostNickname="alice" guestNickname="bob"
         onPick={onPick} onRefresh={vi.fn()}
       />,
     )

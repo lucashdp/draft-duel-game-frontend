@@ -31,7 +31,7 @@ function makePick(overrides: { pickNumber: number; role: 'host'|'guest'; teamId:
 
 describe('DraftBoard', () => {
   it('renders 10 slots (5 per role) when picks is empty', () => {
-    render(<DraftBoard picks={[]} currentPickNumber={0} homeTeam={home} awayTeam={away} />)
+    render(<DraftBoard picks={[]} currentPickNumber={0} homeTeam={home} awayTeam={away} hostNickname="alice" guestNickname="bob" />)
     expect(screen.getAllByTestId(/^draft-slot/)).toHaveLength(10)
     expect(screen.getAllByTestId('draft-slot-empty')).toHaveLength(9)
     expect(screen.getByTestId('draft-slot-current')).toBeInTheDocument()
@@ -42,14 +42,14 @@ describe('DraftBoard', () => {
       makePick({ pickNumber: 0, role: 'host', teamId: 'th' }),
       makePick({ pickNumber: 1, role: 'guest', teamId: 'ta' }),
     ]
-    render(<DraftBoard picks={picks} currentPickNumber={2} homeTeam={home} awayTeam={away} />)
+    render(<DraftBoard picks={picks} currentPickNumber={2} homeTeam={home} awayTeam={away} hostNickname="alice" guestNickname="bob" />)
     expect(screen.getByText('A0')).toBeInTheDocument()
     expect(screen.getByText('A1')).toBeInTheDocument()
     expect(screen.getAllByTestId('draft-slot-empty')).toHaveLength(7)
   })
 
   it('marks the current pick slot with data-current', () => {
-    render(<DraftBoard picks={[]} currentPickNumber={3} homeTeam={home} awayTeam={away} />)
+    render(<DraftBoard picks={[]} currentPickNumber={3} homeTeam={home} awayTeam={away} hostNickname="alice" guestNickname="bob" />)
     const current = screen.getByTestId('draft-slot-current')
     expect(current).toHaveAttribute('data-pick-number', '3')
   })
