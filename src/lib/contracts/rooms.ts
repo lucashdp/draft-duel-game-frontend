@@ -13,7 +13,6 @@ export type RoomStatus = (typeof ROOM_STATUS_VALUES)[number]
 
 import { Role, roleSchema } from '@/lib/contracts/shared'
 export { Role, roleSchema }
-export type { Role as Role } from '@/lib/contracts/shared'
 
 const ROOM_WINNER_VALUES = ['host', 'guest', 'draw', 'abandoned'] as const
 export const RoomWinner = {
