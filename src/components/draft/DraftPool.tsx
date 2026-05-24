@@ -78,7 +78,6 @@ export function DraftPool({
         <PlayerCard
           shortName={entry.athlete.shortName}
           position={entry.athlete.position}
-          jerseyNumber={entry.athlete.jerseyNumber}
           teamPrimaryColor={team.primaryColor}
           teamSecondaryColor={team.secondaryColor}
           onClick={isInteractive ? () => onPick(entry.athlete.id) : undefined}

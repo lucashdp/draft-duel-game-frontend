@@ -62,7 +62,6 @@ export function DraftBoard({
           <PlayerCard
             shortName={pick.athlete.shortName}
             position={pick.athlete.position}
-            jerseyNumber={pick.athlete.jerseyNumber}
             teamPrimaryColor={team.primaryColor}
             teamSecondaryColor={team.secondaryColor}
           />

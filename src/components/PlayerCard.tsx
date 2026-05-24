@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { JerseyIcon } from '@/components/JerseyIcon'
 import type { Position } from '@/lib/contracts/catalog'
 
 /** Neutral team colors used when a team has no palette configured. */
@@ -11,7 +10,6 @@ const DEFAULT_TEAM_SECONDARY = '#ffffff'
 interface PlayerCardProps {
   shortName: string
   position: Position
-  jerseyNumber: number | null
   teamPrimaryColor: string | null
   teamSecondaryColor: string | null
   score?: number
@@ -25,7 +23,6 @@ interface PlayerCardProps {
 export function PlayerCard({
   shortName,
   position,
-  jerseyNumber,
   teamPrimaryColor,
   teamSecondaryColor,
   score,
@@ -35,6 +32,8 @@ export function PlayerCard({
   flashType,
   compact,
 }: PlayerCardProps) {
+  const primary = teamPrimaryColor ?? DEFAULT_TEAM_PRIMARY
+  const secondary = teamSecondaryColor ?? DEFAULT_TEAM_SECONDARY
   return (
     <div
       onClick={onClick}
@@ -51,11 +50,10 @@ export function PlayerCard({
       <span className="px-1.5 py-0.5 text-[0.65rem] font-semibold rounded bg-secondary text-muted-foreground uppercase tracking-wider">
         {position}
       </span>
-      <JerseyIcon
-        jerseyNumber={jerseyNumber}
-        primaryColor={teamPrimaryColor ?? DEFAULT_TEAM_PRIMARY}
-        secondaryColor={teamSecondaryColor ?? DEFAULT_TEAM_SECONDARY}
-        size="sm"
+      <span
+        aria-hidden
+        className="w-2 h-6 rounded-sm shrink-0"
+        style={{ backgroundColor: primary, border: `1px solid ${secondary}33` }}
       />
       <span className="text-sm font-medium truncate flex-1">{shortName}</span>
       {score !== undefined && (

@@ -39,7 +39,6 @@ function TeamColumn({
             key={e.athlete.id}
             shortName={e.athlete.shortName}
             position={e.athlete.position}
-            jerseyNumber={e.jerseyNumber}
             teamPrimaryColor={team.primaryColor}
             teamSecondaryColor={team.secondaryColor}
             compact
