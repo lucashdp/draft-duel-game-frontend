@@ -5,7 +5,13 @@ interface ScoreboardCardsProps {
   oppName: string
   myScore: number
   oppScore: number
-  canSub: boolean
+  /**
+   * Show the substitution UI on the current user's card. Per spec §2.1 subs
+   * are unlimited, so this is gated only by match state (typically `!finished`
+   * from the caller) — the name reflects "is the sub UI enabled" rather than
+   * "is there a quota left", which the old `canSub` label confusingly hinted at.
+   */
+  enableSubstitution: boolean
   subMode: boolean
   onToggleSub: () => void
 }
@@ -15,7 +21,7 @@ export function ScoreboardCards({
   oppName,
   myScore,
   oppScore,
-  canSub,
+  enableSubstitution,
   subMode,
   onToggleSub,
 }: ScoreboardCardsProps) {
@@ -29,17 +35,17 @@ export function ScoreboardCards({
         className={cn(
           'bg-surface rounded-lg p-3 text-center',
           iWinning && 'text-event-positive',
-          canSub && 'ring-2 ring-primary',
+          enableSubstitution && 'ring-2 ring-primary',
         )}
       >
         <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
           {myName} (Você)
         </div>
         <div className="text-3xl font-bold tabular-nums">{myScore.toFixed(1)}</div>
-        {canSub && (
+        {enableSubstitution && (
           <>
             <div className="text-[0.65rem] text-primary font-semibold mt-1">
-              Substituição disponível
+              Subs ilimitadas
             </div>
             <button
               type="button"

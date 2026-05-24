@@ -133,7 +133,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
         oppName={oppName}
         myScore={myScore}
         oppScore={oppScore}
-        canSub={!finished}
+        enableSubstitution={!finished}
         subMode={subMode}
         onToggleSub={handleToggleSub}
       />

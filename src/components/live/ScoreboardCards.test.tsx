@@ -10,7 +10,7 @@ describe('ScoreboardCards', () => {
         oppName="Bob"
         myScore={15.5}
         oppScore={10}
-        canSub={false}
+        enableSubstitution={false}
         subMode={false}
         onToggleSub={() => {}}
       />,
@@ -19,19 +19,36 @@ describe('ScoreboardCards', () => {
     expect(myCard.className).toMatch(/text-event-positive|text-green/)
   })
 
-  it('shows sub banner when canSub is true', () => {
+  it('shows the unlimited-subs hint when enableSubstitution is true', () => {
     render(
       <ScoreboardCards
         myName="Eu"
         oppName="Bob"
         myScore={5}
         oppScore={10}
-        canSub={true}
+        enableSubstitution={true}
         subMode={false}
         onToggleSub={() => {}}
       />,
     )
-    expect(screen.getByText(/Substitui[çc][aã]o dispon[ií]vel/i)).toBeInTheDocument()
+    expect(screen.getByText(/Subs ilimitadas/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /substituir/i })).toBeInTheDocument()
+  })
+
+  it('hides the sub UI when enableSubstitution is false', () => {
+    render(
+      <ScoreboardCards
+        myName="Eu"
+        oppName="Bob"
+        myScore={5}
+        oppScore={10}
+        enableSubstitution={false}
+        subMode={false}
+        onToggleSub={() => {}}
+      />,
+    )
+    expect(screen.queryByText(/Subs ilimitadas/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /substituir/i })).not.toBeInTheDocument()
   })
 
   it('shows Cancelar when subMode is true', () => {
@@ -41,7 +58,7 @@ describe('ScoreboardCards', () => {
         oppName="Bob"
         myScore={5}
         oppScore={10}
-        canSub={true}
+        enableSubstitution={true}
         subMode={true}
         onToggleSub={() => {}}
       />,
