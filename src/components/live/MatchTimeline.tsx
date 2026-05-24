@@ -15,9 +15,12 @@ export function MatchTimeline({ events }: MatchTimelineProps) {
     )
   }
 
+  // The 50-event cap lives in `useLiveSocket` (RECENT_EVENTS_CAP) for the
+  // WS-push path; the server snapshot also caps at 50 per spec §6.2. Either
+  // way the array reaching here is already bounded — no slice needed.
   return (
     <div className="bg-surface rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
-      {events.slice(0, 50).map((evt) => {
+      {events.map((evt) => {
         const isPositive = evt.points >= 0
         return (
           <div
