@@ -7,7 +7,7 @@ const sizeMap = {
 } as const
 
 interface JerseyIconProps {
-  jerseyNumber: number | null
+  jerseyNumber?: number | null
   primaryColor: string
   secondaryColor: string
   size?: keyof typeof sizeMap
@@ -15,7 +15,6 @@ interface JerseyIconProps {
 }
 
 export function JerseyIcon({
-  jerseyNumber,
   primaryColor,
   secondaryColor,
   size = 'md',
@@ -25,16 +24,13 @@ export function JerseyIcon({
     <div
       className={cn(
         sizeMap[size],
-        'rounded flex items-center justify-center font-semibold shrink-0',
+        'rounded shrink-0',
         className,
       )}
       style={{
         backgroundColor: primaryColor,
-        color: secondaryColor,
-        border: `1px solid ${secondaryColor}33`,
+        border: `2px solid ${secondaryColor}`,
       }}
-    >
-      {jerseyNumber ?? '?'}
-    </div>
+    />
   )
 }
