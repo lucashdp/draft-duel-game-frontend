@@ -20,6 +20,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-EXPOSE 3000
+EXPOSE 8080
 
-CMD ["sh", "-c", "PORT=${PORT:-3000} node server.js"]
+ENV PORT=8080
+ENV HOSTNAME=0.0.0.0
+
+CMD ["node", "server.js"]
