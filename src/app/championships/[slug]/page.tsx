@@ -38,15 +38,20 @@ export default function ChampionshipPage({
             <p className="text-muted-foreground mt-1">{data.round.name}</p>
           </header>
 
-          {data.matches.length === 0 ? (
-            <p className="text-muted-foreground text-sm">Sem partidas nesta rodada.</p>
-          ) : (
-            <div className="space-y-2">
-              {data.matches.map((m) => (
-                <MatchCard key={m.id} match={m} />
-              ))}
-            </div>
-          )}
+          {(() => {
+            const upcoming = data.matches.filter(
+              (m) => m.status !== 'finished' && m.status !== 'postponed' && m.status !== 'canceled',
+            )
+            return upcoming.length === 0 ? (
+              <p className="text-muted-foreground text-sm">Sem partidas disponíveis nesta rodada.</p>
+            ) : (
+              <div className="space-y-2">
+                {upcoming.map((m) => (
+                  <MatchCard key={m.id} match={m} />
+                ))}
+              </div>
+            )
+          })()}
         </>
       )}
     </main>
