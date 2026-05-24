@@ -140,6 +140,10 @@ export function useLiveSocket(roomId: string): void {
           ...prev,
           status: RoomStatus.FINISHED,
           winner: payload.winner,
+          // Keep `match.status` in lockstep with the room/live state — otherwise
+          // any future consumer reading `room.match.status` would see a stale
+          // `'live'` value until the next snapshot refetch.
+          match: { ...prev.match, status: 'finished' as const },
           live: prev.live
             ? {
                 ...prev.live,

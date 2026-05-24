@@ -147,6 +147,8 @@ describe('useLiveSocket', () => {
     act(() => listeners.get('match:finished')!(payload))
     const updated = qc.getQueryData<RoomSnapshotDto>(['room', ROOM_ID])!
     expect(updated.status).toBe('finished')
+    expect(updated.match.status).toBe('finished')
+    expect(updated.winner).toBe('host')
     expect(updated.live?.matchStatus).toBe('finished')
     expect(updated.live?.winner).toBe('host')
     expect(updated.live?.hostScore).toBe(12)
