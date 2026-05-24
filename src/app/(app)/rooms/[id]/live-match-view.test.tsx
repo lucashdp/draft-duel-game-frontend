@@ -126,6 +126,17 @@ describe('LiveMatchView', () => {
     expect(screen.queryByText(/AO VIVO/i)).not.toBeInTheDocument()
   })
 
+  it('renders "Você cancelou a sala" when host abandoned solo (no guest)', () => {
+    const soloHostRoom: RoomSnapshotDto = {
+      ...makeRoom({ status: 'finished', winner: 'abandoned' }),
+      guest: null,
+      live: null,
+    }
+    render(<LiveMatchView room={soloHostRoom} isHost finished />, { wrapper })
+    expect(screen.getByText(/Você cancelou a sala/i)).toBeInTheDocument()
+    expect(screen.queryByText(/^Sala abandonada$/i)).not.toBeInTheDocument()
+  })
+
   it('renders opponent nickname (not the role label) in the defeat banner', () => {
     const finishedRoom = makeRoom(
       { status: 'finished' },

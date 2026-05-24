@@ -14,12 +14,20 @@ interface FinishedBannerProps {
    * abandon during WAITING).
    */
   opponentNickname?: string | null
+  /**
+   * Whether a guest ever joined the room. Used to distinguish a host who
+   * cancelled their own room solo ("Você cancelou a sala") from a regular
+   * mutual abandonment ("Sala abandonada"). Defaults to true so existing
+   * callers stay on the generic copy.
+   */
+  hadGuest?: boolean
 }
 
 export function FinishedBanner({
   winner,
   myRole,
   opponentNickname,
+  hadGuest = true,
 }: FinishedBannerProps) {
   let text = ''
   let positive = false
@@ -27,7 +35,7 @@ export function FinishedBanner({
   if (winner === 'draw') {
     text = 'Empate!'
   } else if (winner === 'abandoned') {
-    text = 'Sala abandonada'
+    text = myRole === 'host' && !hadGuest ? 'Você cancelou a sala' : 'Sala abandonada'
   } else if (winner === myRole) {
     text = 'Você venceu!'
     positive = true

@@ -25,8 +25,19 @@ describe('FinishedBanner', () => {
     expect(screen.getByText(/Empate/i)).toBeInTheDocument()
   })
 
-  it('shows abandoned message', () => {
-    render(<FinishedBanner winner="abandoned" myRole="host" />)
-    expect(screen.getByText(/abandonada|encerrada/i)).toBeInTheDocument()
+  it('shows generic abandoned message when both sides were in the room', () => {
+    render(<FinishedBanner winner="abandoned" myRole="host" hadGuest />)
+    expect(screen.getByText(/Sala abandonada/i)).toBeInTheDocument()
+  })
+
+  it('shows "Você cancelou a sala" when host abandons solo (no guest ever joined)', () => {
+    render(<FinishedBanner winner="abandoned" myRole="host" hadGuest={false} />)
+    expect(screen.getByText(/Você cancelou a sala/i)).toBeInTheDocument()
+    expect(screen.queryByText(/^Sala abandonada$/i)).not.toBeInTheDocument()
+  })
+
+  it('still shows "Sala abandonada" for a guest viewing an abandoned room', () => {
+    render(<FinishedBanner winner="abandoned" myRole="guest" hadGuest />)
+    expect(screen.getByText(/Sala abandonada/i)).toBeInTheDocument()
   })
 })

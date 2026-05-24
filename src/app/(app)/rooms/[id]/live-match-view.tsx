@@ -41,6 +41,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
   const opponentNickname = isHost
     ? room.guest?.nickname ?? null
     : room.host.nickname
+  const hadGuest = room.guest !== null
 
   const [subMode, setSubMode] = useState(false)
   const [selectedToRemove, setSelectedToRemove] = useState<AthleteRefDto | null>(null)
@@ -63,6 +64,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
           winner={room.winner ?? 'abandoned'}
           myRole={myRole}
           opponentNickname={opponentNickname}
+          hadGuest={hadGuest}
         />
       </div>
     )
@@ -143,6 +145,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
           winner={live.winner}
           myRole={myRole}
           opponentNickname={opponentNickname}
+          hadGuest={hadGuest}
         />
       )}
 
