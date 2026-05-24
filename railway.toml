@@ -1,5 +1,6 @@
 [build]
 builder = "dockerfile"
+dockerBuildArgs = ["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_WS_URL", "NEXT_PUBLIC_WEB_ORIGIN"]
 
 [deploy]
 startCommand = "node server.js"
