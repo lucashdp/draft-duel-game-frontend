@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { athleteRefSchema } from './draft'
-import { roleSchema } from './shared'
+import {
+  matchStatusSchema,
+  type MatchStatus,
+  roleSchema,
+  roomWinnerSchema,
+} from './shared'
 
 export const ACTION_TYPES = [
   'GOAL', 'ASSIST', 'YELLOW_CARD', 'RED_CARD', 'SAVE', 'PENALTY_SAVE', 'OWN_GOAL',
@@ -11,14 +16,12 @@ export const ACTION_TYPES = [
 export const actionTypeSchema = z.enum(ACTION_TYPES)
 export type ActionType = z.infer<typeof actionTypeSchema>
 
-export const liveMatchStatusSchema = z.enum(['scheduled', 'live', 'finished', 'postponed', 'canceled'])
-export type MatchStatus = z.infer<typeof liveMatchStatusSchema>
-
-// Re-export roleSchema for convenience
-export { roleSchema }
-
-// roomWinnerSchema defined locally to avoid circular dependency with rooms.ts
-export const roomWinnerSchema = z.enum(['host', 'guest', 'draw', 'abandoned'])
+// Re-export shared schemas/types so consumers of the live contract have a
+// single import surface. The enums themselves live in `shared.ts` to keep
+// `rooms.ts` and `live.ts` (both consumers of the match-status / winner
+// vocabulary) in lockstep — see PR #7 review for the bug this avoided.
+export { matchStatusSchema, roleSchema, roomWinnerSchema }
+export type { MatchStatus }
 
 export const matchEventSchema = z.object({
   id: z.string().uuid(),
@@ -45,7 +48,7 @@ export const liveSubPoolEntrySchema = z.object({
 export type LiveSubPoolEntry = z.infer<typeof liveSubPoolEntrySchema>
 
 export const liveStateSchema = z.object({
-  matchStatus: liveMatchStatusSchema,
+  matchStatus: matchStatusSchema,
   currentMinute: z.number().int().nullable(),
   currentMinuteAt: z.string().nullable(),
   homeScore: z.number().int().nullable(),

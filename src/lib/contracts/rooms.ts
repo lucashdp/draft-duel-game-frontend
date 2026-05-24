@@ -1,37 +1,27 @@
 import { z } from 'zod'
 import { draftStateSchema } from '@/lib/contracts/draft'
 import { liveStateSchema } from './live'
+import {
+  Role,
+  roleSchema,
+  RoomStatus,
+  roomStatusSchema,
+  RoomWinner,
+  roomWinnerSchema,
+  MatchStatus,
+  matchStatusSchema,
+} from '@/lib/contracts/shared'
 
-/** Wire format = lowercase (mirrors API's mapper output, matches src/types/domain.ts). */
-const ROOM_STATUS_VALUES = ['waiting', 'drafting', 'live', 'finished'] as const
-export const RoomStatus = {
-  WAITING: ROOM_STATUS_VALUES[0],
-  DRAFTING: ROOM_STATUS_VALUES[1],
-  LIVE: ROOM_STATUS_VALUES[2],
-  FINISHED: ROOM_STATUS_VALUES[3],
-} as const
-export type RoomStatus = (typeof ROOM_STATUS_VALUES)[number]
-
-import { Role, roleSchema } from '@/lib/contracts/shared'
-export { Role, roleSchema }
-
-const ROOM_WINNER_VALUES = ['host', 'guest', 'draw', 'abandoned'] as const
-export const RoomWinner = {
-  HOST: ROOM_WINNER_VALUES[0],
-  GUEST: ROOM_WINNER_VALUES[1],
-  DRAW: ROOM_WINNER_VALUES[2],
-  ABANDONED: ROOM_WINNER_VALUES[3],
-} as const
-export type RoomWinner = (typeof ROOM_WINNER_VALUES)[number]
-
-const MATCH_STATUS_VALUES = ['scheduled', 'live', 'finished', 'postponed'] as const
-export const MatchStatus = {
-  SCHEDULED: MATCH_STATUS_VALUES[0],
-  LIVE: MATCH_STATUS_VALUES[1],
-  FINISHED: MATCH_STATUS_VALUES[2],
-  POSTPONED: MATCH_STATUS_VALUES[3],
-} as const
-export type MatchStatus = (typeof MATCH_STATUS_VALUES)[number]
+export {
+  Role,
+  roleSchema,
+  RoomStatus,
+  roomStatusSchema,
+  RoomWinner,
+  roomWinnerSchema,
+  MatchStatus,
+  matchStatusSchema,
+}
 
 export const RoomErrorCode = {
   MATCH_NOT_FOUND: 'MATCH_NOT_FOUND',
@@ -70,10 +60,6 @@ const userRefSchema = z.object({
   nickname: z.string(),
 })
 export type UserRefDto = z.infer<typeof userRefSchema>
-
-export const roomStatusSchema = z.enum(ROOM_STATUS_VALUES)
-export const roomWinnerSchema = z.enum(ROOM_WINNER_VALUES)
-export const matchStatusSchema = z.enum(MATCH_STATUS_VALUES)
 
 export const roomSnapshotSchema = z.object({
   id: z.string().uuid(),
