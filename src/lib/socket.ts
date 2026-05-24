@@ -5,6 +5,14 @@ import {
   type WsServerEvent,
 } from '@/lib/contracts/ws'
 
+/**
+ * Max time (ms) we wait for an emit ack before giving up. Shared across all
+ * ack-bearing emits (draft:pick, match:substitute, …) — spec budgets
+ * propagation at `< 2s`, so 5s leaves room for slow networks without leaving
+ * a confirmation dialog spinning indefinitely.
+ */
+export const ACK_TIMEOUT_MS = 5000
+
 let socket: Socket | null = null
 // Refcount so multiple consumers (lobby + future draft/match views) can share
 // one socket. Last consumer to call disconnectSocket() actually disconnects.

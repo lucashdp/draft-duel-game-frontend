@@ -6,6 +6,7 @@ import { useMakePick } from './useMakePick'
 const emitImpl = vi.fn<(event: string, payload: unknown, ack?: (resp: unknown) => void) => void>()
 
 vi.mock('@/lib/socket', () => ({
+  ACK_TIMEOUT_MS: 5000,
   socketEmit: (event: string, payload: unknown, ack?: (resp: unknown) => void) =>
     emitImpl(event, payload, ack),
 }))
