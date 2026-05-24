@@ -38,6 +38,9 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
 
   const live = room.live
   const myRole = isHost ? 'host' : 'guest'
+  const opponentNickname = isHost
+    ? room.guest?.nickname ?? null
+    : room.host.nickname
 
   const [subMode, setSubMode] = useState(false)
   const [selectedToRemove, setSelectedToRemove] = useState<AthleteRefDto | null>(null)
@@ -49,9 +52,25 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
     live?.currentMinuteAt ?? null,
   )
 
+  // Rooms that abandon during WAITING/DRAFTING never get a `live` snapshot —
+  // PendingView used to catch this, but the dispatcher now sends every
+  // FINISHED room here. Render the banner straight from `room.winner` (no
+  // scoreboard/timeline to show — no events were ever generated).
+  if (finished && !live) {
+    return (
+      <div className="space-y-3">
+        <FinishedBanner
+          winner={room.winner ?? 'abandoned'}
+          myRole={myRole}
+          opponentNickname={opponentNickname}
+        />
+      </div>
+    )
+  }
+
   if (!live) {
-    // Should not happen for LIVE/FINISHED rooms; render a stub to avoid crashing
-    // if the snapshot races ahead of the live payload.
+    // LIVE status with no live payload — race between the room snapshot and
+    // the API's live state hydration. Brief flash before the refetch arrives.
     return (
       <div className="rounded-lg bg-surface p-6 text-center text-sm text-muted-foreground">
         Carregando estado da partida…
@@ -64,9 +83,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
   const myScore = myRole === 'host' ? live.hostScore : live.guestScore
   const oppScore = myRole === 'host' ? live.guestScore : live.hostScore
   const myName = isHost ? room.host.nickname : room.guest?.nickname ?? 'Você'
-  const oppName = isHost
-    ? room.guest?.nickname ?? 'Oponente'
-    : room.host.nickname
+  const oppName = opponentNickname ?? 'Oponente'
 
   const handleToggleSub = () => {
     setSubMode((prev) => !prev)
@@ -122,7 +139,11 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
       />
 
       {finished && live.winner && (
-        <FinishedBanner winner={live.winner} myRole={myRole} />
+        <FinishedBanner
+          winner={live.winner}
+          myRole={myRole}
+          opponentNickname={opponentNickname}
+        />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1.5fr] gap-3">

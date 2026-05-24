@@ -7,9 +7,20 @@ import { cn } from '@/lib/utils'
 interface FinishedBannerProps {
   winner: RoomWinner
   myRole: Role
+  /**
+   * Opponent's nickname — used in the defeat copy so the user sees
+   * "alice venceu" instead of the technical role label "Host venceu".
+   * Falls back to "Oponente" if the room never had a guest (e.g. host-only
+   * abandon during WAITING).
+   */
+  opponentNickname?: string | null
 }
 
-export function FinishedBanner({ winner, myRole }: FinishedBannerProps) {
+export function FinishedBanner({
+  winner,
+  myRole,
+  opponentNickname,
+}: FinishedBannerProps) {
   let text = ''
   let positive = false
 
@@ -21,7 +32,7 @@ export function FinishedBanner({ winner, myRole }: FinishedBannerProps) {
     text = 'Você venceu!'
     positive = true
   } else {
-    text = `${winner === 'host' ? 'Host' : 'Guest'} venceu`
+    text = `${opponentNickname ?? 'Oponente'} venceu`
   }
 
   return (

@@ -114,4 +114,25 @@ describe('LiveMatchView', () => {
     render(<LiveMatchView room={finishedRoom} isHost finished />, { wrapper })
     expect(screen.queryByRole('button', { name: /substituir/i })).not.toBeInTheDocument()
   })
+
+  it('renders FinishedBanner using room.winner when live is null (abandoned WAITING/DRAFTING)', () => {
+    const abandonedRoom: RoomSnapshotDto = {
+      ...makeRoom({ status: 'finished', winner: 'abandoned' }),
+      live: null,
+    }
+    render(<LiveMatchView room={abandonedRoom} isHost finished />, { wrapper })
+    expect(screen.getByText(/Sala abandonada/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Carregando estado da partida/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/AO VIVO/i)).not.toBeInTheDocument()
+  })
+
+  it('renders opponent nickname (not the role label) in the defeat banner', () => {
+    const finishedRoom = makeRoom(
+      { status: 'finished' },
+      { matchStatus: 'finished', winner: 'guest' },
+    )
+    render(<LiveMatchView room={finishedRoom} isHost finished />, { wrapper })
+    expect(screen.getByText(/guestnick venceu/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Guest venceu/i)).not.toBeInTheDocument()
+  })
 })
