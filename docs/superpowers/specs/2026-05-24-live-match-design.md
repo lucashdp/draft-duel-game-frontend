@@ -175,7 +175,10 @@ ALTER TYPE "ActionType" ADD VALUE IF NOT EXISTS 'FOUL_SUFFERED';
 ALTER TYPE "ActionType" ADD VALUE IF NOT EXISTS 'FOUL_COMMITTED';
 ALTER TYPE "ActionType" ADD VALUE IF NOT EXISTS 'OFFSIDE';
 ALTER TYPE "AppliesTo" ADD VALUE IF NOT EXISTS 'BACK_LINE';
+ALTER TYPE "MatchStatus" ADD VALUE IF NOT EXISTS 'CANCELED';
 ```
+
+> `MatchStatus` atualmente é `SCHEDULED | LIVE | FINISHED | POSTPONED`. Adicionamos `CANCELED` pra cobrir o cenário "partida cancelada definitivamente" (distinto de POSTPONED, que pode ser remarcada). Em ambos os casos a sala fecha com `winner='abandoned'`, mas o estado da `Match` mantém o status real do provider — útil pra auditoria e pra distinção em telas de histórico futuras.
 
 **`20260524000001_live_match_setup`** (consome os novos valores):
 
@@ -231,7 +234,7 @@ Tudo aditivo, sem dropar nada.
         │  MatchOrchestratorService            │
         │   • applyLiveData(match, live)       │
         │   • applySubstitution(input, user)   │
-        │   • closeRoom(roomId, status, min)   │
+        │   • closeRoom(roomId, min, status)   │
         │   • openInitialIntervals(...)        │ (já existe, v4)
         └──────────────────────────┬───────────┘
                                    ▼
@@ -314,7 +317,7 @@ Quando o worker (15min) confirma uma escalação que antes era `null`, emite `Ma
 ### 5.6 `WsModule` — handlers e listeners
 
 - Handler `match:substitute { roomId, removeAthleteId, addAthleteId }` → valida Zod → `MatchOrchestratorService.applySubstitution` → ack.
-- `@OnEvent` para os 6 tópicos do `match` + `lineup:confirmed`. Broadcast no canal `room:<id>` (exceto `lineup:confirmed`, que é broadcasted no canal `match:<matchId>` ou direto pra cada `room:<id>` afetada — escolha de implementação).
+- `@OnEvent` para os 5 tópicos do `match` (`NEW`, `CANCELED`, `TICK`, `SUBSTITUTION_APPLIED`, `FINISHED`) + `LINEUP_CONFIRMED`. Broadcasts vão para `room:<id>` (`LINEUP_CONFIRMED` itera todas as salas com aquele match em DRAFTING e emite em cada `room:<id>`).
 
 ## 6. Contratos — DTOs e schemas Zod
 
@@ -345,7 +348,7 @@ type RoomSnapshot = {
 }
 
 type LiveStateDto = {
-  matchStatus: MatchStatus               // 'live' | 'finished' | 'postponed' | 'canceled'
+  matchStatus: MatchStatusWire           // 'live' | 'finished' | 'postponed' | 'canceled' (lowercase wire, mapeado de MatchStatus)
   currentMinute: number | null
   currentMinuteAt: string | null         // ISO; cliente interpola entre ticks
   homeScore: number | null
@@ -507,9 +510,11 @@ async applyLiveData(match: Match, live: MatchLiveDto): Promise<void> {
     for (const r of removed) {
       const athleteId = await this.resolveAthlete(tx, match.id, r.athleteExternalId)
       if (!athleteId) continue
+      // Ordena por occurredAt + id pra pegar os mais recentes (provider_external_id é
+      // string lexicográfica — "10" < "9", então não serve pra ordenar por seq).
       const candidates = await tx.matchEvent.findMany({
         where: { matchId: match.id, athleteId, action: r.action },
-        orderBy: { providerExternalId: 'desc' },
+        orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }],
         take: r.count,
       })
       if (candidates.length < r.count) throw new ScoutInvariantError(...)
@@ -545,7 +550,7 @@ async applyLiveData(match: Match, live: MatchLiveDto): Promise<void> {
   // 4. Fim de jogo
   if (wantsClose) {
     for (const room of liveRooms) {
-      await this.closeRoom(room.id, 'FINISHED', live.currentMinute ?? 0, live.status)
+      await this.closeRoom(room.id, live.currentMinute ?? 0, live.status)
     }
   }
 }
@@ -613,25 +618,27 @@ await this.prisma.room.update({ where: { id: roomId }, data: { hostScore, guestS
 this.eventEmitter.emit(MatchEvent.SUBSTITUTION_APPLIED, { roomId, role: myRole, removedAthlete, addedAthlete, minute, hostScore, guestScore })
 ```
 
-### 8.5 `closeRoom(roomId, endStatus, endMinute, liveStatus)`
+### 8.5 `closeRoom(roomId, endMinute, liveStatus)`
 
 ```ts
-await this.prisma.$transaction(async (tx) => {
-  await tx.roomLineupInterval.updateMany({
-    where: { roomId, validToMinute: null },
-    data: { validToMinute: endMinute },
+async closeRoom(roomId: string, endMinute: number, liveStatus: MatchLiveDto['status']): Promise<void> {
+  await this.prisma.$transaction(async (tx) => {
+    await tx.roomLineupInterval.updateMany({
+      where: { roomId, validToMinute: null },
+      data: { validToMinute: endMinute },
+    })
+    const { hostScore, guestScore } = await this.scoring.recalculate(roomId)
+    const winner = liveStatus === 'finished'
+      ? (hostScore > guestScore ? 'host' : guestScore > hostScore ? 'guest' : 'draw')
+      : 'abandoned'
+    await tx.room.update({
+      where: { id: roomId },
+      data: { status: 'FINISHED', hostScore, guestScore, winner, matchFinishedAt: new Date() },
+    })
   })
-  const { hostScore, guestScore } = await this.scoring.recalculate(roomId)
-  const winner = liveStatus === 'finished'
-    ? (hostScore > guestScore ? 'host' : guestScore > hostScore ? 'guest' : 'draw')
-    : 'abandoned'
-  await tx.room.update({
-    where: { id: roomId },
-    data: { status: 'FINISHED', hostScore, guestScore, winner, matchFinishedAt: new Date() },
-  })
-})
 
-this.eventEmitter.emit(MatchEvent.FINISHED, { roomId, hostScore, guestScore, winner, finishedAt })
+  this.eventEmitter.emit(MatchEvent.FINISHED, { roomId, hostScore, guestScore, winner, finishedAt })
+}
 ```
 
 Idempotente: rodar 2x consecutivas gera state final igual; reemissão tratada como reconcile no cliente.
@@ -840,7 +847,7 @@ Reusa classes Tailwind já existentes (`animate-flash-positive`, etc.).
 | Stub simulador | ✓ | ✓ | ✓ |
 | Cartola scout mapping | ✓ | — | implícito |
 | Lineup push WS | ✓ gateway | ✓ | ✓ |
-| Broadcast WS (5 tópicos) | ✓ | ✓ | ✓ |
+| Broadcast WS (5 match: + 1 lineup:) | ✓ | ✓ | ✓ |
 | Snapshot enriquecido | ✓ mappers | ✓ | implícito |
 | Frontend FinishedBanner | ✓ | — | ✓ |
 | Interpolated minute | ✓ | — | implícito |
