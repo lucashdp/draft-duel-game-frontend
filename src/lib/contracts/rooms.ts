@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { draftStateSchema } from '@/lib/contracts/draft'
+import { liveStateSchema } from './live'
 
 /** Wire format = lowercase (mirrors API's mapper output, matches src/types/domain.ts). */
 const ROOM_STATUS_VALUES = ['waiting', 'drafting', 'live', 'finished'] as const
@@ -91,6 +92,7 @@ export const roomSnapshotSchema = z.object({
   expiresAt: z.string(),
   createdAt: z.string(),
   draft: draftStateSchema.nullable(),
+  live: liveStateSchema.nullable(),
 })
 export type RoomSnapshotDto = z.infer<typeof roomSnapshotSchema>
 

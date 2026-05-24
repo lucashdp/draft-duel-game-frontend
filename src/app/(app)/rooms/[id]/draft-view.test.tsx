@@ -48,6 +48,7 @@ function makeRoom(overrides: Partial<RoomSnapshotDto> = {}, draftOverrides: Part
       pool: [{ athlete: ATH_HOME, teamSide: 'home', pickedByRole: null }],
       ...draftOverrides,
     },
+    live: null,
   }
   return { ...base, ...overrides }
 }

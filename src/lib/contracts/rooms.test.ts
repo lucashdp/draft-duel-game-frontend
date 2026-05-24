@@ -40,6 +40,7 @@ const validSnapshot = {
   expiresAt: '2026-05-18T20:00:00.000Z',
   createdAt: '2026-05-17T10:00:00.000Z',
   draft: null,
+  live: null,
 }
 
 describe('rooms contracts', () => {

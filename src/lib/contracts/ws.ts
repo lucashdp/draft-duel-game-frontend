@@ -14,9 +14,12 @@ export const WsServerEvent = {
   DRAFT_CURRENT_PICK: 'draft:current_pick',
   MATCH_STARTED: 'match:started',
   MATCH_EVENT: 'match:event',
+  MATCH_EVENT_CANCELED: 'match:event_canceled',
+  MATCH_TICK: 'match:tick',
   MATCH_SCORE_UPDATED: 'match:score_updated',
   MATCH_SUBSTITUTION_APPLIED: 'match:substitution_applied',
   MATCH_FINISHED: 'match:finished',
+  LINEUP_CONFIRMED: 'lineup:confirmed',
   ERROR: 'error',
 } as const
 export type WsServerEvent = (typeof WsServerEvent)[keyof typeof WsServerEvent]
@@ -36,6 +39,12 @@ export const WsErrorCode = {
   ATHLETE_ALREADY_PICKED: 'ATHLETE_ALREADY_PICKED',
   POSITION_ALREADY_FILLED: 'POSITION_ALREADY_FILLED',
   PICK_RACE_LOST: 'PICK_RACE_LOST',
+  // Live
+  NOT_LIVE: 'NOT_LIVE',
+  MATCH_NOT_STARTED: 'MATCH_NOT_STARTED',
+  ATHLETE_NOT_IN_TEAM: 'ATHLETE_NOT_IN_TEAM',
+  ATHLETE_NOT_AVAILABLE: 'ATHLETE_NOT_AVAILABLE',
+  POSITION_MISMATCH: 'POSITION_MISMATCH',
 } as const
 export type WsErrorCode = (typeof WsErrorCode)[keyof typeof WsErrorCode]
 
