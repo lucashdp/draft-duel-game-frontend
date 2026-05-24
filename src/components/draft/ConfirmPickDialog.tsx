@@ -30,7 +30,7 @@ export function ConfirmPickDialog({ athlete, teamName, onConfirm, onCancel, isPe
           <DialogDescription>
             {athlete && (
               <>
-                Draftar <strong>{athlete.name}</strong> ({athlete.position}, {teamName})?
+                Draftar <strong>{athlete.shortName}</strong> ({athlete.position}, {teamName})?
               </>
             )}
           </DialogDescription>
