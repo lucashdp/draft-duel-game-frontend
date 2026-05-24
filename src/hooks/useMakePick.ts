@@ -2,15 +2,8 @@
 
 import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
-import { socketEmit } from '@/lib/socket'
+import { ACK_TIMEOUT_MS, socketEmit } from '@/lib/socket'
 import { WsClientEvent, type WsErrorCode } from '@/lib/contracts/ws'
-
-/**
- * Max time (ms) we wait for the server's ack before giving up. Spec calls for
- * `< 2s` propagation, so 5s leaves room for slow networks without leaving the
- * user with a forever-spinning ConfirmPickDialog.
- */
-const ACK_TIMEOUT_MS = 5000
 
 export class PickError extends Error {
   constructor(public readonly code: WsErrorCode | 'UNKNOWN', message: string) {

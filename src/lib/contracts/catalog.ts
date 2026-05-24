@@ -1,4 +1,9 @@
 import { z } from 'zod'
+import { matchStatusSchema } from './shared'
+
+// Re-export so callers importing the match catalog don't need to know that
+// the wire format lives in `shared.ts`.
+export { matchStatusSchema }
 
 export const championshipKindSchema = z.enum(['league', 'cup'])
 
@@ -22,8 +27,6 @@ export const teamSchema = z.object({
   secondaryColor: hexColor,
 })
 export type TeamDto = z.infer<typeof teamSchema>
-
-export const matchStatusSchema = z.enum(['scheduled', 'live', 'finished', 'postponed'])
 
 export const matchSummarySchema = z.object({
   id: z.string().uuid(),

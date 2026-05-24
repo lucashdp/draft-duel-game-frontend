@@ -46,6 +46,7 @@ function makeSnapshot(): RoomSnapshotDto {
         { athlete: ATH, teamSide: 'home', pickedByRole: null },
       ],
     },
+    live: null,
   }
 }
 

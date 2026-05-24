@@ -1,10 +1,7 @@
 import type { Position } from '@/lib/contracts/catalog'
+import type { ActionType } from '@/lib/contracts/live'
 
-export type ActionType =
-  | 'GOL' | 'ASS' | 'RB' | 'DS' | 'PE'
-  | 'DEF' | 'SG' | 'DD' | 'DP' | 'GS'
-  | 'FF' | 'FS' | 'FT' | 'I' | 'GC' | 'PP'
-  | 'CA' | 'CV'
+export type { ActionType }
 
 export type RoomStatus = 'waiting' | 'drafting' | 'live' | 'finished'
 
@@ -46,34 +43,28 @@ export interface Room {
   guestIntervals: LineupInterval[]
 }
 
-export interface MatchEvent {
-  eventId: string
-  athleteId: string
-  action: ActionType
-  minute: number
-  points: number
-  affectedRole: Role | null
-}
-
 export const ACTION_LABELS: Record<ActionType, string> = {
-  GOL: 'Gol',
-  ASS: 'Assistência',
-  RB: 'Roubada de Bola',
-  DS: 'Desarme',
-  PE: 'Passe Errado',
-  FF: 'Falta Sofrida',
-  FS: 'Falta Cometida',
-  FT: 'Finalização na Trave',
-  I: 'Impedimento',
-  GC: 'Gol Contra',
-  PP: 'Pênalti Perdido',
-  DEF: 'Defesa',
-  SG: 'Jogo sem Sofrer Gol',
-  DD: 'Defesa Difícil',
-  DP: 'Defesa de Pênalti',
-  GS: 'Gol Sofrido',
-  CA: 'Cartão Amarelo',
-  CV: 'Cartão Vermelho',
+  GOAL: 'Gol',
+  ASSIST: 'Assistência',
+  YELLOW_CARD: 'Cartão Amarelo',
+  RED_CARD: 'Cartão Vermelho',
+  SAVE: 'Defesa',
+  PENALTY_SAVE: 'Defesa de Pênalti',
+  OWN_GOAL: 'Gol Contra',
+  PENALTY_MISS: 'Pênalti Perdido',
+  PENALTY_GOAL: 'Gol de Pênalti',
+  INTERCEPTION: 'Roubada de Bola',
+  TACKLE_WON: 'Desarme',
+  KEY_PASS: 'Passe Decisivo',
+  SHOT_ON_TARGET: 'Finalização Certa',
+  CLEAN_SHEET: 'Jogo sem Sofrer Gol',
+  HARD_SAVE: 'Defesa Difícil',
+  GOAL_CONCEDED: 'Gol Sofrido',
+  POST_HIT: 'Finalização na Trave',
+  MISSED_PASS: 'Passe Errado',
+  FOUL_SUFFERED: 'Falta Sofrida',
+  FOUL_COMMITTED: 'Falta Cometida',
+  OFFSIDE: 'Impedimento',
 }
 
 export const POSITION_ORDER: Position[] = ['GOL', 'LAT', 'ZAG', 'MEI', 'ATA']
