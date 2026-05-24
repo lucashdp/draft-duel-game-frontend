@@ -21,9 +21,13 @@ function TeamBadge({ team, align }: { team: TeamDto; align: 'left' | 'right' }) 
     >
       <div
         className="w-8 h-8 rounded shrink-0"
-        style={{ backgroundColor: team.primaryColor, border: `1px solid ${team.secondaryColor}33` }}
+        style={{
+          backgroundColor: team.primaryColor,
+          border: `2px solid ${team.secondaryColor}`,
+        }}
       />
-      <span className="text-sm font-semibold tabular-nums">{team.abbreviation}</span>
+      <span className="hidden sm:block text-sm font-semibold truncate">{team.shortName}</span>
+      <span className="sm:hidden text-sm font-semibold tabular-nums">{team.abbreviation}</span>
     </div>
   )
 }
