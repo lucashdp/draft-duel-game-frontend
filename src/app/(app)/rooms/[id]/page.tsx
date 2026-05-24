@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { RoomStatus } from '@/lib/contracts/rooms'
 import { LobbyView } from './lobby-view'
 import { DraftView } from './draft-view'
-import { PendingView } from './pending-view'
+import { LiveMatchView } from './live-match-view'
 
 export default function RoomPage({
   params,
@@ -37,7 +37,13 @@ export default function RoomPage({
         if (room.data.status === RoomStatus.DRAFTING) {
           return <DraftView room={room.data} isHost={isHost} />
         }
-        return <PendingView room={room.data} />
+        if (room.data.status === RoomStatus.LIVE) {
+          return <LiveMatchView room={room.data} isHost={isHost} />
+        }
+        if (room.data.status === RoomStatus.FINISHED) {
+          return <LiveMatchView room={room.data} isHost={isHost} finished />
+        }
+        return null
       })()}
     </main>
   )
