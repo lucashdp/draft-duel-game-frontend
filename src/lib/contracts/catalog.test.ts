@@ -82,6 +82,28 @@ describe('catalog contracts', () => {
     expect(parsed.home).toEqual([])
   })
 
+  it('parses lineup entries with null jerseyNumber without throwing', () => {
+    const team = validTeam
+    const parsed = matchLineupsSchema.parse({
+      matchId: '00000000-0000-4000-8000-000000000010',
+      confirmedAt: '2026-05-20T17:00:00.000Z',
+      home: [
+        {
+          athlete: {
+            id: '00000000-0000-4000-8000-0000000000a1',
+            name: 'Player A', shortName: 'PA', position: 'GOL',
+            jerseyNumber: null, team,
+          },
+          isStarter: true,
+          jerseyNumber: null,
+        },
+      ],
+      away: [],
+    })
+    expect(parsed.home).toHaveLength(1)
+    expect(parsed.home[0].jerseyNumber).toBeNull()
+  })
+
   it('rejects a championship with bad kind', () => {
     expect(() =>
       championshipSchema.parse({

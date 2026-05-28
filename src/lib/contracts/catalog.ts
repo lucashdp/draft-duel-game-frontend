@@ -73,7 +73,7 @@ export type AthleteDto = z.infer<typeof athleteSchema>
 export const lineupEntrySchema = z.object({
   athlete: athleteSchema,
   isStarter: z.boolean(),
-  jerseyNumber: z.number(),
+  jerseyNumber: z.number().nullable(),
 })
 export type LineupEntryDto = z.infer<typeof lineupEntrySchema>
 

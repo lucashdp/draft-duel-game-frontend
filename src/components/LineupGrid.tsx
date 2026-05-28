@@ -13,7 +13,7 @@ function sortByPosition(entries: LineupEntryDto[]): LineupEntryDto[] {
     const aPos = POSITION_ORDER.indexOf(a.athlete.position)
     const bPos = POSITION_ORDER.indexOf(b.athlete.position)
     if (aPos !== bPos) return aPos - bPos
-    return a.jerseyNumber - b.jerseyNumber
+    return (a.jerseyNumber ?? 99) - (b.jerseyNumber ?? 99)
   })
 }
 
