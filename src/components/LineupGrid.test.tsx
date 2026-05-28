@@ -62,4 +62,19 @@ describe('LineupGrid', () => {
     expect(screen.getByText('AAA')).toBeInTheDocument()
     expect(screen.getByText('BBB')).toBeInTheDocument()
   })
+
+  it('shows pending placeholders and X/11 counter when lineup is incomplete', () => {
+    const lineups = makeLineups(true) // 1 player per team
+    render(
+      <LineupGrid
+        lineups={lineups}
+        homeTeam={sampleTeam}
+        awayTeam={{ ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' }}
+      />,
+    )
+    // 1 confirmed player → 10 pending slots per team → 20 "A confirmar" total
+    expect(screen.getAllByText('A confirmar')).toHaveLength(20)
+    // Both team headers show "1/11"
+    expect(screen.getAllByText('1/11')).toHaveLength(2)
+  })
 })
