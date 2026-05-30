@@ -36,6 +36,7 @@ const sampleTeam = {
   id: '00000000-0000-4000-8000-000000000020',
   name: 'A', shortName: 'A', abbreviation: 'AAA',
   imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+  position: 1, form: [],
 }
 
 describe('useChampionships', () => {
@@ -72,6 +73,7 @@ describe('useMatch', () => {
       kickoffAt: '2026-05-20T18:00:00.000Z',
       status: 'scheduled',
       homeScore: null, awayScore: null, currentMinute: null, lineupsConfirmedAt: null,
+      venue: null,
       homeTeam: sampleTeam,
       awayTeam: { ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', name: 'B', abbreviation: 'BBB' },
     }))

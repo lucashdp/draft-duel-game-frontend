@@ -9,12 +9,14 @@ const CHAMPIONSHIP = {
 const TEAM_A = {
   id: '00000000-0000-4000-8000-000000000020',
   name: 'Time A', shortName: 'Time A', abbreviation: 'AAA',
-  crestUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
+  position: 1, form: ['V', 'E', 'D', 'V', 'V'],
 }
 const TEAM_B = {
   id: '00000000-0000-4000-8000-000000000021',
   name: 'Time B', shortName: 'Time B', abbreviation: 'BBB',
-  crestUrl: null, primaryColor: '#0000FF', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#0000FF', secondaryColor: '#FFFFFF',
+  position: 3, form: ['D', 'V', 'E', 'D', 'V'],
 }
 const MATCH_ID = '00000000-0000-4000-8000-000000000010'
 
@@ -44,6 +46,7 @@ test('catalog browse: home → round → match', async ({ page }) => {
             kickoffAt: '2026-05-20T18:00:00.000Z',
             status: 'scheduled',
             homeScore: null, awayScore: null, currentMinute: null, lineupsConfirmedAt: null,
+            venue: 'Maracanã',
             homeTeam: TEAM_A,
             awayTeam: TEAM_B,
           },
@@ -62,6 +65,7 @@ test('catalog browse: home → round → match', async ({ page }) => {
         kickoffAt: '2026-05-20T18:00:00.000Z',
         status: 'scheduled',
         homeScore: null, awayScore: null, currentMinute: null, lineupsConfirmedAt: null,
+        venue: 'Maracanã',
         homeTeam: TEAM_A,
         awayTeam: TEAM_B,
       }),

@@ -4,6 +4,7 @@ import {
   currentRoundSchema,
   matchLineupsSchema,
   matchSummarySchema,
+  matchTeamSummarySchema,
   teamSchema,
 } from './catalog'
 
@@ -38,18 +39,85 @@ describe('catalog contracts', () => {
       awayScore: null,
       currentMinute: null,
       lineupsConfirmedAt: null,
+      venue: null,
       homeTeam: {
         id: '00000000-0000-4000-8000-000000000020',
         name: 'A', shortName: 'A', abbreviation: 'AAA',
         imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+        position: 1, form: ['V', 'E', 'D'],
       },
       awayTeam: {
         id: '00000000-0000-4000-8000-000000000021',
         name: 'B', shortName: 'B', abbreviation: 'BBB',
         imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
+        position: null, form: [],
       },
     })
     expect(parsed.status).toBe('scheduled')
+  })
+
+  it('parses a match team summary with position and form', () => {
+    const parsed = matchTeamSummarySchema.parse({
+      ...validTeam,
+      position: 1,
+      form: ['V', 'E', 'D', 'V', 'V'],
+    })
+    expect(parsed.position).toBe(1)
+    expect(parsed.form).toEqual(['V', 'E', 'D', 'V', 'V'])
+  })
+
+  it('allows a null position and an empty form (cups without a table)', () => {
+    const parsed = matchTeamSummarySchema.parse({ ...validTeam, position: null, form: [] })
+    expect(parsed.position).toBeNull()
+    expect(parsed.form).toEqual([])
+  })
+
+  it('rejects a form entry outside V/E/D', () => {
+    expect(() =>
+      matchTeamSummarySchema.parse({ ...validTeam, position: 1, form: ['W'] }),
+    ).toThrow()
+  })
+
+  it('parses a match summary with venue and enriched teams', () => {
+    const parsed = matchSummarySchema.parse({
+      id: '00000000-0000-4000-8000-000000000010',
+      championshipId: '00000000-0000-4000-8000-000000000001',
+      kickoffAt: '2026-05-20T18:00:00.000Z',
+      status: 'scheduled',
+      homeScore: null,
+      awayScore: null,
+      currentMinute: null,
+      lineupsConfirmedAt: null,
+      venue: 'Maracanã',
+      homeTeam: { ...validTeam, position: 1, form: ['V', 'V', 'E'] },
+      awayTeam: {
+        ...validTeam,
+        id: '00000000-0000-4000-8000-000000000021',
+        position: null,
+        form: [],
+      },
+    })
+    expect(parsed.venue).toBe('Maracanã')
+    expect(parsed.homeTeam.position).toBe(1)
+    expect(parsed.homeTeam.form).toEqual(['V', 'V', 'E'])
+    expect(parsed.awayTeam.position).toBeNull()
+  })
+
+  it('allows a null venue', () => {
+    const parsed = matchSummarySchema.parse({
+      id: '00000000-0000-4000-8000-000000000010',
+      championshipId: '00000000-0000-4000-8000-000000000001',
+      kickoffAt: '2026-05-20T18:00:00.000Z',
+      status: 'scheduled',
+      homeScore: null,
+      awayScore: null,
+      currentMinute: null,
+      lineupsConfirmedAt: null,
+      venue: null,
+      homeTeam: { ...validTeam, position: 1, form: [] },
+      awayTeam: { ...validTeam, id: '00000000-0000-4000-8000-000000000021', position: 2, form: [] },
+    })
+    expect(parsed.venue).toBeNull()
   })
 
   it('parses a current round response with championship, round, and matches', () => {

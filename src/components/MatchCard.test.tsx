@@ -1,12 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { MatchCard } from '@/components/MatchCard'
-import type { MatchSummaryDto } from '@/lib/contracts/catalog'
+import type { MatchSummaryDto, MatchTeamSummaryDto } from '@/lib/contracts/catalog'
 
-const baseTeam = {
+const baseTeam: MatchTeamSummaryDto = {
   id: '00000000-0000-4000-8000-000000000020',
   name: 'A', shortName: 'A', abbreviation: 'AAA',
   imageUrl: null, primaryColor: '#000000', secondaryColor: '#FFFFFF',
+  position: 1, form: ['V', 'E', 'D', 'V', 'V'],
 }
 
 function makeMatch(overrides: Partial<MatchSummaryDto> = {}): MatchSummaryDto {
@@ -19,6 +20,7 @@ function makeMatch(overrides: Partial<MatchSummaryDto> = {}): MatchSummaryDto {
     awayScore: null,
     currentMinute: null,
     lineupsConfirmedAt: null,
+    venue: null,
     homeTeam: { ...baseTeam, abbreviation: 'AAA' },
     awayTeam: { ...baseTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' },
     ...overrides,
@@ -62,5 +64,71 @@ describe('MatchCard', () => {
   it('labels postponed matches', () => {
     render(<MatchCard match={makeMatch({ status: 'postponed' })} />)
     expect(screen.getByText(/adiado/i)).toBeInTheDocument()
+  })
+
+  it('labels canceled matches', () => {
+    render(<MatchCard match={makeMatch({ status: 'canceled' })} />)
+    expect(screen.getByText(/cancelado/i)).toBeInTheDocument()
+  })
+
+  it('shows each team table position', () => {
+    render(
+      <MatchCard
+        match={makeMatch({
+          homeTeam: { ...baseTeam, abbreviation: 'AAA', position: 1 },
+          awayTeam: { ...baseTeam, abbreviation: 'BBB', position: 3 },
+        })}
+      />,
+    )
+    expect(screen.getByText(/1º lugar/)).toBeInTheDocument()
+    expect(screen.getByText(/3º lugar/)).toBeInTheDocument()
+  })
+
+  it('hides the position line when position is null', () => {
+    render(
+      <MatchCard
+        match={makeMatch({
+          homeTeam: { ...baseTeam, abbreviation: 'AAA', position: null },
+          awayTeam: { ...baseTeam, abbreviation: 'BBB', position: null },
+        })}
+      />,
+    )
+    expect(screen.queryByText(/lugar/)).not.toBeInTheDocument()
+  })
+
+  it('renders a form badge per recent result, oldest to newest', () => {
+    render(
+      <MatchCard
+        match={makeMatch({
+          homeTeam: { ...baseTeam, abbreviation: 'AAA', form: ['V', 'E', 'D', 'V', 'V'] },
+          awayTeam: { ...baseTeam, abbreviation: 'BBB', form: [] },
+        })}
+      />,
+    )
+    const badges = screen.getAllByTestId('form-badge')
+    expect(badges).toHaveLength(5)
+    expect(badges.map((b) => b.textContent)).toEqual(['V', 'E', 'D', 'V', 'V'])
+  })
+
+  it('renders no form badges when form is empty', () => {
+    render(
+      <MatchCard
+        match={makeMatch({
+          homeTeam: { ...baseTeam, abbreviation: 'AAA', form: [] },
+          awayTeam: { ...baseTeam, abbreviation: 'BBB', form: [] },
+        })}
+      />,
+    )
+    expect(screen.queryAllByTestId('form-badge')).toHaveLength(0)
+  })
+
+  it('shows the venue when present', () => {
+    render(<MatchCard match={makeMatch({ venue: 'Maracanã' })} />)
+    expect(screen.getByText('Maracanã')).toBeInTheDocument()
+  })
+
+  it('hides the venue when null', () => {
+    render(<MatchCard match={makeMatch({ venue: null })} />)
+    expect(screen.queryByText('Maracanã')).not.toBeInTheDocument()
   })
 })

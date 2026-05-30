@@ -4,6 +4,20 @@ import Link from 'next/link'
 import { use } from 'react'
 import { useCurrentRound } from '@/hooks/useCatalog'
 import { MatchCard } from '@/components/MatchCard'
+import { groupMatchesByDay, type MatchDayGroup } from './matchGroups'
+
+function DateGroup({ group }: { group: MatchDayGroup }) {
+  return (
+    <section className="space-y-2">
+      <h2 className="text-sm font-semibold text-muted-foreground">{group.label}</h2>
+      <div className="space-y-2">
+        {group.matches.map((m) => (
+          <MatchCard key={m.id} match={m} />
+        ))}
+      </div>
+    </section>
+  )
+}
 
 export default function ChampionshipPage({
   params,
@@ -38,20 +52,15 @@ export default function ChampionshipPage({
             <p className="text-muted-foreground mt-1">{data.round.name}</p>
           </header>
 
-          {(() => {
-            const upcoming = data.matches.filter(
-              (m) => m.status !== 'finished' && m.status !== 'postponed' && m.status !== 'canceled',
-            )
-            return upcoming.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Sem partidas disponíveis nesta rodada.</p>
-            ) : (
-              <div className="space-y-2">
-                {upcoming.map((m) => (
-                  <MatchCard key={m.id} match={m} />
-                ))}
-              </div>
-            )
-          })()}
+          {data.matches.length === 0 ? (
+            <p className="text-muted-foreground text-sm">Sem partidas disponíveis nesta rodada.</p>
+          ) : (
+            <div className="space-y-6">
+              {groupMatchesByDay(data.matches).map((group) => (
+                <DateGroup key={group.key} group={group} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </main>

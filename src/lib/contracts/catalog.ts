@@ -28,6 +28,14 @@ export const teamSchema = z.object({
 })
 export type TeamDto = z.infer<typeof teamSchema>
 
+// A team as it appears inside a match: the base team plus the season context
+// (current table position and recent form) the listing renders alongside it.
+export const matchTeamSummarySchema = teamSchema.extend({
+  position: z.number().nullable(),
+  form: z.array(z.enum(['V', 'E', 'D'])),
+})
+export type MatchTeamSummaryDto = z.infer<typeof matchTeamSummarySchema>
+
 export const matchSummarySchema = z.object({
   id: z.string().uuid(),
   championshipId: z.string().uuid(),
@@ -37,8 +45,9 @@ export const matchSummarySchema = z.object({
   awayScore: z.number().nullable(),
   currentMinute: z.number().nullable(),
   lineupsConfirmedAt: z.string().nullable(),
-  homeTeam: teamSchema,
-  awayTeam: teamSchema,
+  venue: z.string().nullable(),
+  homeTeam: matchTeamSummarySchema,
+  awayTeam: matchTeamSummarySchema,
 })
 export type MatchSummaryDto = z.infer<typeof matchSummarySchema>
 
