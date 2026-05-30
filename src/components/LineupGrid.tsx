@@ -1,4 +1,5 @@
 import { PlayerCard } from '@/components/PlayerCard'
+import { TeamIcon } from '@/components/TeamIcon'
 import type { LineupEntryDto, MatchLineupsDto, TeamDto } from '@/lib/contracts/catalog'
 import { POSITION_ORDER } from '@/types/domain'
 
@@ -42,9 +43,11 @@ function TeamColumn({
   return (
     <div>
       <header className="flex items-center gap-2 mb-3">
-        <div
-          className="w-6 h-6 rounded shrink-0"
-          style={{ backgroundColor: team.primaryColor, border: `1px solid ${team.secondaryColor}33` }}
+        <TeamIcon
+          size="sm"
+          imageUrl={team.imageUrl}
+          primaryColor={team.primaryColor}
+          secondaryColor={team.secondaryColor}
         />
         <span className="text-sm font-semibold">{team.abbreviation}</span>
         {missingCount > 0 && (
