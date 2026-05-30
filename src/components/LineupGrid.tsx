@@ -82,8 +82,8 @@ export function LineupGrid({ lineups, homeTeam, awayTeam }: LineupGridProps) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <TeamColumn team={homeTeam} entries={lineups.home} />
-      <TeamColumn team={awayTeam} entries={lineups.away} />
+      <TeamColumn team={homeTeam} entries={lineups.home.filter((e) => e.isStarter)} />
+      <TeamColumn team={awayTeam} entries={lineups.away.filter((e) => e.isStarter)} />
     </div>
   )
 }

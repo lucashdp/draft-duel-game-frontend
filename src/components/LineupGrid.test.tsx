@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { LineupGrid } from '@/components/LineupGrid'
-import type { MatchLineupsDto } from '@/lib/contracts/catalog'
+import type { LineupEntryDto, MatchLineupsDto } from '@/lib/contracts/catalog'
 
 const sampleTeam = {
   id: '00000000-0000-4000-8000-000000000020',
@@ -42,7 +42,34 @@ function makeLineups(confirmed: boolean): MatchLineupsDto {
   }
 }
 
+function makeSubstituteEntry(id: string, team: typeof sampleTeam): LineupEntryDto {
+  return {
+    athlete: {
+      id,
+      name: 'Sub Player', shortName: 'SUB', position: 'ATA', jerseyNumber: 99,
+      team,
+    },
+    isStarter: false,
+    jerseyNumber: 99,
+  }
+}
+
 describe('LineupGrid', () => {
+  it('does not render substitute (isStarter=false) entries', () => {
+    const lineups = makeLineups(true)
+    const awayTeam = { ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' }
+    // Inject one substitute into each team
+    lineups.home.push(makeSubstituteEntry('00000000-0000-4000-8000-0000000000a9', sampleTeam))
+    lineups.away.push(makeSubstituteEntry('00000000-0000-4000-8000-0000000000b9', awayTeam))
+
+    render(<LineupGrid lineups={lineups} homeTeam={sampleTeam} awayTeam={awayTeam} />)
+
+    // Each team has 1 starter + 1 sub → should only show 1 player each, not 2
+    expect(screen.getAllByText('GK1')).toHaveLength(1)
+    expect(screen.getAllByText('AT1')).toHaveLength(1)
+    expect(screen.queryAllByText('SUB')).toHaveLength(0)
+  })
+
   it('shows the not-confirmed message when confirmedAt is null', () => {
     render(<LineupGrid lineups={makeLineups(false)} homeTeam={sampleTeam} awayTeam={sampleTeam} />)
     expect(screen.getByText(/ainda não confirmadas/i)).toBeInTheDocument()
