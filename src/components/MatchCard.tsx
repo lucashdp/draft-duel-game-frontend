@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { TeamIcon } from '@/components/TeamIcon'
 import type { MatchSummaryDto, TeamDto } from '@/lib/contracts/catalog'
 
 interface MatchCardProps {
@@ -19,12 +20,11 @@ function TeamBadge({ team, align }: { team: TeamDto; align: 'left' | 'right' }) 
     <div
       className={cn('flex items-center gap-2 min-w-0', align === 'right' && 'flex-row-reverse')}
     >
-      <div
-        className="w-8 h-8 rounded shrink-0"
-        style={{
-          backgroundColor: team.primaryColor,
-          border: `2px solid ${team.secondaryColor}`,
-        }}
+      <TeamIcon
+        size="md"
+        imageUrl={team.imageUrl}
+        primaryColor={team.primaryColor}
+        secondaryColor={team.secondaryColor}
       />
       <span className="hidden sm:block text-sm font-semibold truncate">{team.shortName}</span>
       <span className="sm:hidden text-sm font-semibold tabular-nums">{team.abbreviation}</span>
