@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { LineupGrid } from '@/components/LineupGrid'
-import type { LineupEntryDto, MatchLineupsDto } from '@/lib/contracts/catalog'
+import type { MatchLineupsDto } from '@/lib/contracts/catalog'
 
 const sampleTeam = {
   id: '00000000-0000-4000-8000-000000000020',
@@ -42,37 +42,10 @@ function makeLineups(confirmed: boolean): MatchLineupsDto {
   }
 }
 
-function makeSubstituteEntry(id: string, team: typeof sampleTeam): LineupEntryDto {
-  return {
-    athlete: {
-      id,
-      name: 'Sub Player', shortName: 'SUB', position: 'ATA', jerseyNumber: 99,
-      team,
-    },
-    isStarter: false,
-    jerseyNumber: 99,
-  }
-}
-
 describe('LineupGrid', () => {
-  it('does not render substitute (isStarter=false) entries', () => {
-    const lineups = makeLineups(true)
-    const awayTeam = { ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' }
-    // Inject one substitute into each team
-    lineups.home.push(makeSubstituteEntry('00000000-0000-4000-8000-0000000000a9', sampleTeam))
-    lineups.away.push(makeSubstituteEntry('00000000-0000-4000-8000-0000000000b9', awayTeam))
-
-    render(<LineupGrid lineups={lineups} homeTeam={sampleTeam} awayTeam={awayTeam} />)
-
-    // Each team has 1 starter + 1 sub → should only show 1 player each, not 2
-    expect(screen.getAllByText('GK1')).toHaveLength(1)
-    expect(screen.getAllByText('AT1')).toHaveLength(1)
-    expect(screen.queryAllByText('SUB')).toHaveLength(0)
-  })
-
-  it('shows the not-confirmed message when confirmedAt is null', () => {
+  it('shows the not-available message when confirmedAt is null', () => {
     render(<LineupGrid lineups={makeLineups(false)} homeTeam={sampleTeam} awayTeam={sampleTeam} />)
-    expect(screen.getByText(/ainda não confirmadas/i)).toBeInTheDocument()
+    expect(screen.getByText(/nenhum jogador disponível/i)).toBeInTheDocument()
   })
 
   it('renders home and away players when lineups are confirmed', () => {
@@ -90,18 +63,22 @@ describe('LineupGrid', () => {
     expect(screen.getByText('BBB')).toBeInTheDocument()
   })
 
-  it('shows pending placeholders and X/11 counter when lineup is incomplete', () => {
-    const lineups = makeLineups(true) // 1 player per team
-    render(
-      <LineupGrid
-        lineups={lineups}
-        homeTeam={sampleTeam}
-        awayTeam={{ ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' }}
-      />,
-    )
-    // 1 confirmed player → 10 pending slots per team → 20 "A confirmar" total
-    expect(screen.getAllByText('A confirmar')).toHaveLength(20)
-    // Both team headers show "1/11"
-    expect(screen.getAllByText('1/11')).toHaveLength(2)
+  it('renders all available players including those with isStarter=false', () => {
+    const lineups = makeLineups(true)
+    const awayTeam = { ...sampleTeam, id: '00000000-0000-4000-8000-000000000021', abbreviation: 'BBB' }
+    lineups.home.push({
+      athlete: {
+        id: '00000000-0000-4000-8000-0000000000a9',
+        name: 'Sub Player', shortName: 'SUB', position: 'ATA', jerseyNumber: 99,
+        team: sampleTeam,
+      },
+      isStarter: false,
+      jerseyNumber: 99,
+    })
+
+    render(<LineupGrid lineups={lineups} homeTeam={sampleTeam} awayTeam={awayTeam} />)
+
+    expect(screen.getByText('GK1')).toBeInTheDocument()
+    expect(screen.getByText('SUB')).toBeInTheDocument()
   })
 })

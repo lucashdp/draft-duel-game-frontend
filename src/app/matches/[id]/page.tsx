@@ -99,7 +99,7 @@ export default function MatchPage({
 
           <section>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Escalações
+              Jogadores Disponíveis
             </h2>
             {lineups.isLoading && (
               <p className="text-sm text-muted-foreground">Carregando…</p>
