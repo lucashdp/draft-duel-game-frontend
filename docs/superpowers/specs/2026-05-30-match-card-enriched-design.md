@@ -95,7 +95,8 @@ Sem mudanças — o hook já retorna todas as partidas; o filtro era client-side
 | `position === null` | Linha de colocação não renderiza |
 | `form.length === 0` | Linha de badges não renderiza |
 | `venue === null` | Nome do estádio não renderiza |
-| Partida adiada/cancelada | Exibe status (`Adiado` / `Cancelado`) no lugar do horário |
+| Partida adiada | Exibe label `"Adiado"` no lugar do horário (comportamento atual mantido) |
+| Partida cancelada | Exibe label `"Cancelado"` no lugar do horário (novo label, status `canceled` não tinha label antes) |
 | Jogo ao vivo | Placar + minuto atual em verde no centro |
 
 ---
