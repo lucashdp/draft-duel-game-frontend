@@ -38,6 +38,14 @@ vi.mock('socket.io-client', () => ({
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
+// Mirrors the backend's WS auth rejection: the middleware attaches a structured
+// `data.code` that socket.io propagates on `connect_error` (see socket.ts).
+const authError = () => {
+  const err = new Error('UNAUTHORIZED') as Error & { data?: { code?: string } }
+  err.data = { code: 'UNAUTHORIZED' }
+  return err
+}
+
 describe('socket auth recovery on connect_error', () => {
   beforeEach(async () => {
     vi.resetModules()
@@ -50,7 +58,7 @@ describe('socket auth recovery on connect_error', () => {
     const { getSocket } = await import('./socket')
     getSocket()
 
-    h.handlers['connect_error'](new Error('Unauthorized'))
+    h.handlers['connect_error'](authError())
     expect(h.refreshOnce).toHaveBeenCalledTimes(1)
 
     await flush()
@@ -66,14 +74,25 @@ describe('socket auth recovery on connect_error', () => {
     expect(h.socket!.disconnect).not.toHaveBeenCalled()
   })
 
+  it('keys off the structured data.code, not the message text', async () => {
+    const { getSocket } = await import('./socket')
+    getSocket()
+
+    // Message mentions "unauthorized" but carries no structured code — must be
+    // treated as a non-auth error (we match the contract field, not the string).
+    h.handlers['connect_error'](new Error('Unauthorized'))
+    expect(h.refreshOnce).not.toHaveBeenCalled()
+    expect(h.socket!.disconnect).not.toHaveBeenCalled()
+  })
+
   it('stops retrying (disconnects) when still UNAUTHORIZED after a refresh', async () => {
     const { getSocket } = await import('./socket')
     getSocket()
 
-    h.handlers['connect_error'](new Error('Unauthorized'))
+    h.handlers['connect_error'](authError())
     await flush()
     // Reconnect handshake still rejected, with no successful connect in between.
-    h.handlers['connect_error'](new Error('Unauthorized'))
+    h.handlers['connect_error'](authError())
 
     expect(h.refreshOnce).toHaveBeenCalledTimes(1) // not refreshed a second time
     expect(h.socket!.disconnect).toHaveBeenCalled()
@@ -83,10 +102,10 @@ describe('socket auth recovery on connect_error', () => {
     const { getSocket } = await import('./socket')
     getSocket()
 
-    h.handlers['connect_error'](new Error('Unauthorized'))
+    h.handlers['connect_error'](authError())
     await flush()
     h.handlers['connect']() // a good connection resets the one-shot guard
-    h.handlers['connect_error'](new Error('Unauthorized'))
+    h.handlers['connect_error'](authError())
 
     expect(h.refreshOnce).toHaveBeenCalledTimes(2)
   })

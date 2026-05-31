@@ -2,6 +2,7 @@ import { io, type Socket } from 'socket.io-client'
 import { env } from '@/lib/env'
 import { refreshOnce } from '@/lib/api'
 import {
+  WsErrorCode,
   type WsClientEvent,
   type WsServerEvent,
 } from '@/lib/contracts/ws'
@@ -28,12 +29,16 @@ export function getSocket(): Socket {
     socket = io(env.NEXT_PUBLIC_WS_URL, {
       withCredentials: true,
       autoConnect: false,
-      // Prefer raw WebSocket, but allow HTTP long-polling as a fallback. Mobile
-      // networks, captive portals and corporate proxies frequently block
-      // WebSocket; without a fallback the socket silently fails to connect there
-      // (the instability that reproduced on phones but not desktop). Single
-      // Railway replica → polling needs no sticky sessions.
-      transports: ['websocket', 'polling'],
+      // Connect via HTTP long-polling first, then transparently upgrade to raw
+      // WebSocket once it's confirmed working. Mobile networks, captive portals
+      // and corporate proxies frequently block WebSocket; polling-first means
+      // the socket still connects there (staying on polling) — that's the
+      // instability that reproduced on phones but not desktop. WebSocket-first
+      // would NOT fall back without `tryAllTransports: true` (engine.io-client
+      // `_onError` only shifts transport when that flag is set), so the upgrade
+      // path is the reliable fix. Single Railway replica → polling needs no
+      // sticky sessions.
+      transports: ['polling', 'websocket'],
     })
 
     socket.on('connect', () => {
@@ -46,13 +51,26 @@ export function getSocket(): Socket {
     // stale cookie — a permanently-dead, silent socket until a full page reload.
     // Refresh the cookie once, then reconnect; if it still fails, stop retrying.
     socket.on('connect_error', (err: Error) => {
-      const isAuthError = /unauthorized/i.test(err?.message ?? '')
-      if (!isAuthError) return
+      // Match the backend's explicit error contract: the WS auth middleware
+      // (`ws-auth.middleware.ts`) rejects an expired-cookie handshake with a
+      // structured `err.data.code = 'UNAUTHORIZED'`, which socket.io propagates
+      // on `connect_error`. Keying off that field instead of the human-readable
+      // message keeps us decoupled from message wording (which can change/be
+      // localized) and ignores transport errors (xhr poll error, etc.).
+      const code = (err as { data?: { code?: string } }).data?.code
+      if (code !== WsErrorCode.UNAUTHORIZED) return
       if (authRefreshTried) {
         socket?.disconnect()
         return
       }
       authRefreshTried = true
+      // Timing assumption re: socket.io's built-in auto-reconnect (on by
+      // default). refreshOnce() (~200ms) normally resolves before the Manager's
+      // first auto-retry (`reconnectionDelay` ~1s), so our reconnect below runs
+      // with the fresh cookie. If a slow refresh loses that race, the auto-retry
+      // hits another UNAUTHORIZED and the guard above disconnects — but the
+      // `.then()` reconnect then re-attempts with the refreshed cookie, so
+      // recovery still converges (just one extra round-trip).
       refreshOnce()
         .then(() => socket?.connect())
         .catch(() => socket?.disconnect())
@@ -64,6 +82,11 @@ export function getSocket(): Socket {
 export function connectSocket(): void {
   refCount += 1
   getSocket().connect()
+}
+
+/** Whether the shared socket currently has an open connection. */
+export function isSocketConnected(): boolean {
+  return Boolean(socket?.connected)
 }
 
 export function disconnectSocket(): void {

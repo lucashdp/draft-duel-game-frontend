@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   connectSocket,
   disconnectSocket,
+  isSocketConnected,
   socketEmit,
   socketOn,
   socketOnConnect,
@@ -66,12 +67,18 @@ export function useRoomSocket(roomId: string): void {
       })
     }
 
-    // Initial join (socket.io buffers this until the connection opens).
-    joinRoom()
-    // Re-join on every reconnect: a reconnected socket is a fresh server-side
+    // Join once the connection is open. On a cold socket the `connect` handler
+    // below fires the first join; joining eagerly here too would double-fire on
+    // that first connect (socket.io buffers the eager emit and flushes it on
+    // `connect`, right alongside the handler). Only join eagerly when the socket
+    // is ALREADY open — a second consumer, or a remount over a live connection —
+    // since `connect` won't fire again for those.
+    if (isSocketConnected()) joinRoom()
+    // Re-join on every (re)connect: a reconnected socket is a fresh server-side
     // socket that is NOT in the room channel, so without this the room goes
     // silent after any drop — and drops are routine on mobile (tab backgrounded,
-    // Wi-Fi↔cellular switch). The snapshot ack also re-syncs any missed state.
+    // Wi-Fi↔cellular switch). This also covers the cold-socket first connect.
+    // The snapshot ack also re-syncs any missed state.
     const offConnect = socketOnConnect(joinRoom)
 
     return () => {
