@@ -15,7 +15,7 @@ export function MatchEventsTimeline({ events }: Props) {
     )
   }
   return (
-    <div className="bg-surface rounded-lg overflow-hidden">
+    <div className="bg-surface rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
       {events.map((evt) => (
         <div key={evt.id} className="flex items-center gap-2 px-3 py-2 text-sm border-b border-border/50 last:border-b-0">
           <span aria-hidden className="text-base leading-none">{ACTION_ICONS[evt.action]}</span>

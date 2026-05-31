@@ -15,6 +15,7 @@ export const ACTION_ICONS: Record<ActionType, string> = {
   TACKLE_WON: '🛡️',
   KEY_PASS: '🎯',
   SHOT_ON_TARGET: '🎯',
+  SHOT_OFF_TARGET: '↗️',
   CLEAN_SHEET: '🔒',
   HARD_SAVE: '🧤',
   GOAL_CONCEDED: '🥅',

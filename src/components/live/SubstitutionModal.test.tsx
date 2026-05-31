@@ -50,4 +50,19 @@ describe('SubstitutionModal', () => {
     // passo 2: "Próximo" desabilitado pois quem-entra foi limpo ao trocar a posição
     expect(screen.getByRole('button', { name: /próximo/i })).toBeDisabled()
   })
+
+  it('mostra empty-state quando não há candidato para a posição de quem sai', () => {
+    const lineup2 = [{ athlete: athlete('Alisson', 'GOL'), cumulativePoints: 6 }]
+    // pool só tem ZAG — nenhum goleiro disponível para entrar
+    const pool2 = [{ athlete: athlete('Murilo', 'ZAG'), teamSide: 'home' as const, pointsSoFar: 5 }]
+    render(
+      <SubstitutionModal open lineup={lineup2} pool={pool2} palettes={palettes} homeTeamId="t1"
+        loading={false} onClose={() => {}} onConfirm={() => {}} />,
+    )
+    fireEvent.click(screen.getByText('Alisson'))
+    fireEvent.click(screen.getByRole('button', { name: /próximo/i }))
+    expect(screen.getByText(/nenhum jogador disponível para essa posição/i)).toBeInTheDocument()
+    // sem candidato selecionável, não dá pra avançar
+    expect(screen.getByRole('button', { name: /próximo/i })).toBeDisabled()
+  })
 })
