@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PlayerCard } from '@/components/PlayerCard'
 import { POSITIONS, type Position } from '@/lib/contracts/catalog'
 import type { DraftPoolEntryDto } from '@/lib/contracts/draft'
+import { sortDraftPool } from './sortDraftPool'
 import type { TeamRefDto } from '@/lib/contracts/rooms'
 import { resolveMatchPalettes } from '@/lib/teamColors'
 
@@ -60,9 +61,11 @@ export function DraftPool({
   const palettes = resolveMatchPalettes(homeTeam, awayTeam)
 
   function filterPool(side: 'home' | 'away') {
-    return pool
-      .filter((e) => e.teamSide === side)
-      .filter((e) => positionFilter === null || e.athlete.position === positionFilter)
+    return sortDraftPool(
+      pool
+        .filter((e) => e.teamSide === side)
+        .filter((e) => positionFilter === null || e.athlete.position === positionFilter),
+    )
   }
 
   function renderEntry(entry: DraftPoolEntryDto, palette: { primary: string; secondary: string }) {
