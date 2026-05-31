@@ -59,6 +59,7 @@ function makeRoom(
       matchStatus: 'live',
       currentMinute: 30,
       currentMinuteAt: new Date().toISOString(),
+      clockState: 'running' as const,
       homeScore: 1,
       awayScore: 0,
       hostScore: 8,

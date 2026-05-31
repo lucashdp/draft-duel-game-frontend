@@ -104,6 +104,7 @@ export function useLiveSocket(roomId: string): void {
             ...prev.live,
             currentMinute: payload.currentMinute,
             currentMinuteAt: payload.currentMinuteAt,
+            clockState: payload.clockState,
             homeScore: payload.homeScore,
             awayScore: payload.awayScore,
           },
