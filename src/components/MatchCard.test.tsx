@@ -144,3 +144,15 @@ describe('MatchCard', () => {
     expect(screen.queryByText('Maracanã')).not.toBeInTheDocument()
   })
 })
+
+describe('MatchCard ao vivo', () => {
+  it('mostra um indicador de ao vivo com o minuto em destaque', () => {
+    render(
+      <MatchCard
+        match={makeMatch({ status: 'live', homeScore: 1, awayScore: 0, currentMinute: 73 })}
+      />,
+    )
+    const live = screen.getByTestId('live-indicator')
+    expect(live).toHaveTextContent("73'")
+  })
+})
