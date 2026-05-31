@@ -1,6 +1,7 @@
 import { PlayerCard } from '@/components/PlayerCard'
 import { TeamIcon } from '@/components/TeamIcon'
 import type { LineupEntryDto, MatchLineupsDto, TeamDto } from '@/lib/contracts/catalog'
+import { resolveMatchPalettes } from '@/lib/teamColors'
 import { POSITION_ORDER } from '@/types/domain'
 
 interface LineupGridProps {
@@ -21,9 +22,11 @@ function sortByPosition(entries: LineupEntryDto[]): LineupEntryDto[] {
 function TeamColumn({
   team,
   entries,
+  palette,
 }: {
   team: TeamDto
   entries: LineupEntryDto[]
+  palette: { primary: string; secondary: string }
 }) {
   return (
     <div>
@@ -43,8 +46,8 @@ function TeamColumn({
             shortName={e.athlete.shortName}
             position={e.athlete.position}
             jerseyNumber={e.jerseyNumber}
-            teamPrimaryColor={team.primaryColor}
-            teamSecondaryColor={team.secondaryColor}
+            teamPrimaryColor={palette.primary}
+            teamSecondaryColor={palette.secondary}
             compact
           />
         ))}
@@ -62,10 +65,12 @@ export function LineupGrid({ lineups, homeTeam, awayTeam }: LineupGridProps) {
     )
   }
 
+  const palettes = resolveMatchPalettes(homeTeam, awayTeam)
+
   return (
     <div className="grid grid-cols-2 gap-4">
-      <TeamColumn team={homeTeam} entries={lineups.home} />
-      <TeamColumn team={awayTeam} entries={lineups.away} />
+      <TeamColumn team={homeTeam} entries={lineups.home} palette={palettes.home} />
+      <TeamColumn team={awayTeam} entries={lineups.away} palette={palettes.away} />
     </div>
   )
 }
