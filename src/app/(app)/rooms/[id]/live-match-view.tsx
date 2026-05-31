@@ -3,18 +3,17 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import type { RoomSnapshotDto } from '@/lib/contracts/rooms'
-import type { AthleteRefDto } from '@/lib/contracts/draft'
 import { MatchHeader } from '@/components/live/MatchHeader'
 import { ScoreboardCards } from '@/components/live/ScoreboardCards'
 import { TeamLineup } from '@/components/live/TeamLineup'
 import { MatchTimeline } from '@/components/live/MatchTimeline'
-import { SubstitutionPanel } from '@/components/live/SubstitutionPanel'
-import { ConfirmSubDialog } from '@/components/live/ConfirmSubDialog'
+import { SubstitutionModal } from '@/components/live/SubstitutionModal'
 import { FinishedBanner } from '@/components/live/FinishedBanner'
 import { useLiveSocket } from '@/hooks/useLiveSocket'
 import { useMakeSubstitution, SubstitutionError } from '@/hooks/useMakeSubstitution'
 import { useInterpolatedMinute } from '@/hooks/useInterpolatedMinute'
 import { WsErrorCode } from '@/lib/contracts/ws'
+import { resolveMatchPalettes } from '@/lib/teamColors'
 
 interface Props {
   room: RoomSnapshotDto
@@ -44,8 +43,6 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
   const hadGuest = room.guest !== null
 
   const [subMode, setSubMode] = useState(false)
-  const [selectedToRemove, setSelectedToRemove] = useState<AthleteRefDto | null>(null)
-  const [pendingAddAthleteId, setPendingAddAthleteId] = useState<string | null>(null)
 
   const makeSub = useMakeSubstitution(room.id)
   const interpolatedMinute = useInterpolatedMinute(
@@ -89,36 +86,10 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
 
   const handleToggleSub = () => {
     setSubMode((prev) => !prev)
-    setSelectedToRemove(null)
-    setPendingAddAthleteId(null)
   }
 
-  const handlePickFromPool = (addAthleteId: string) => {
-    setPendingAddAthleteId(addAthleteId)
-  }
-
-  const cancelConfirm = () => setPendingAddAthleteId(null)
-
-  const confirmSub = async () => {
-    if (!selectedToRemove || !pendingAddAthleteId) return
-    try {
-      await makeSub.mutateAsync({
-        removeAthleteId: selectedToRemove.id,
-        addAthleteId: pendingAddAthleteId,
-      })
-      setSubMode(false)
-      setSelectedToRemove(null)
-      setPendingAddAthleteId(null)
-    } catch (err: unknown) {
-      const code = err instanceof SubstitutionError ? err.code : 'UNKNOWN'
-      toast.error(TOAST_BY_CODE[code] ?? TOAST_BY_CODE.UNKNOWN!)
-      setPendingAddAthleteId(null)
-    }
-  }
-
-  const addedAthleteForDialog = pendingAddAthleteId
-    ? live.pool.find((p) => p.athlete.id === pendingAddAthleteId)?.athlete ?? null
-    : null
+  const palettes = resolveMatchPalettes(room.match.homeTeam, room.match.awayTeam)
+  const homeTeamId = room.match.homeTeam.id
 
   return (
     <div className="space-y-3">
@@ -141,43 +112,34 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
       />
 
       {finished && live.winner && (
-        <FinishedBanner
-          winner={live.winner}
-          myRole={myRole}
-          opponentNickname={opponentNickname}
-          hadGuest={hadGuest}
-        />
+        <FinishedBanner winner={live.winner} myRole={myRole} opponentNickname={opponentNickname} hadGuest={hadGuest} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1.5fr] gap-3">
-        <TeamLineup
-          title={myName}
-          lineup={myLineup}
-          subMode={subMode && !finished}
-          selectedId={selectedToRemove?.id ?? null}
-          onSelectRemove={(a) => setSelectedToRemove(a)}
-        />
-        <TeamLineup title={oppName} lineup={oppLineup} />
-        <div className="space-y-3">
-          <MatchTimeline events={live.recentEvents} />
-          {subMode && selectedToRemove && (
-            <SubstitutionPanel
-              selectedToRemove={selectedToRemove}
-              pool={live.pool}
-              onPick={handlePickFromPool}
-            />
-          )}
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <TeamLineup title={myName} lineup={myLineup} palettes={palettes} homeTeamId={homeTeamId} />
+        <TeamLineup title={oppName} lineup={oppLineup} palettes={palettes} homeTeamId={homeTeamId} />
       </div>
 
-      {pendingAddAthleteId && addedAthleteForDialog && selectedToRemove && (
-        <ConfirmSubDialog
-          open={!!pendingAddAthleteId}
-          removedAthlete={selectedToRemove}
-          addedAthlete={addedAthleteForDialog}
-          onConfirm={confirmSub}
-          onCancel={cancelConfirm}
+      <MatchTimeline events={live.recentEvents} />
+
+      {subMode && !finished && (
+        <SubstitutionModal
+          open={subMode}
+          lineup={myLineup}
+          pool={live.pool}
+          palettes={palettes}
+          homeTeamId={homeTeamId}
           loading={makeSub.isPending}
+          onClose={handleToggleSub}
+          onConfirm={async (removeAthleteId, addAthleteId) => {
+            try {
+              await makeSub.mutateAsync({ removeAthleteId, addAthleteId })
+              setSubMode(false)
+            } catch (err: unknown) {
+              const code = err instanceof SubstitutionError ? err.code : 'UNKNOWN'
+              toast.error(TOAST_BY_CODE[code] ?? TOAST_BY_CODE.UNKNOWN!)
+            }
+          }}
         />
       )}
     </div>

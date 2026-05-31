@@ -18,8 +18,8 @@ const fakePreview = {
   match: {
     kickoffAt: '2026-05-18T18:00:00.000Z',
     status: 'scheduled',
-    homeTeam: { name: 'F', shortName: 'F', abbreviation: 'FLA', primaryColor: '#FF0000', secondaryColor: '#000000' },
-    awayTeam: { name: 'P', shortName: 'P', abbreviation: 'PAL', primaryColor: '#006633', secondaryColor: '#FFFFFF' },
+    homeTeam: { name: 'F', shortName: 'F', abbreviation: 'FLA', imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#000000' },
+    awayTeam: { name: 'P', shortName: 'P', abbreviation: 'PAL', imageUrl: null, primaryColor: '#006633', secondaryColor: '#FFFFFF' },
   },
   host: { nickname: 'alice' },
   expiresAt: '2026-05-18T20:00:00.000Z',

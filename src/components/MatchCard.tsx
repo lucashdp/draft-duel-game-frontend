@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import { Radio } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TeamIcon } from '@/components/TeamIcon'
+import { resolveMatchPalettes } from '@/lib/teamColors'
 import type { MatchSummaryDto, MatchTeamSummaryDto } from '@/lib/contracts/catalog'
 
 interface MatchCardProps {
@@ -36,7 +38,15 @@ function FormBadge({ result }: { result: 'V' | 'E' | 'D' }) {
   )
 }
 
-function TeamBadge({ team, align }: { team: MatchTeamSummaryDto; align: 'left' | 'right' }) {
+function TeamBadge({
+  team,
+  align,
+  palette,
+}: {
+  team: MatchTeamSummaryDto
+  align: 'left' | 'right'
+  palette: { primary: string; secondary: string }
+}) {
   const alignRight = align === 'right'
   return (
     <div className={cn('flex flex-col gap-1 min-w-0', alignRight ? 'items-end' : 'items-start')}>
@@ -44,8 +54,8 @@ function TeamBadge({ team, align }: { team: MatchTeamSummaryDto; align: 'left' |
         <TeamIcon
           size="md"
           imageUrl={team.imageUrl}
-          primaryColor={team.primaryColor}
-          secondaryColor={team.secondaryColor}
+          primaryColor={palette.primary}
+          secondaryColor={palette.secondary}
         />
         <span className="hidden sm:block text-sm font-semibold truncate">{team.shortName}</span>
         <span className="sm:hidden text-sm font-semibold tabular-nums">{team.abbreviation}</span>
@@ -75,6 +85,8 @@ export function MatchCard({ match, className }: MatchCardProps) {
   const hasScore = match.homeScore !== null && match.awayScore !== null
   const isPlayed = match.status === 'finished' || (match.status === 'scheduled' && hasScore)
   const showScore = match.status === 'live' || isPlayed
+  const palettes = resolveMatchPalettes(match.homeTeam, match.awayTeam)
+  const isLive = match.status === 'live'
 
   return (
     <Link
@@ -87,7 +99,7 @@ export function MatchCard({ match, className }: MatchCardProps) {
       )}
     >
       <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3">
-        <TeamBadge team={match.homeTeam} align="left" />
+        <TeamBadge team={match.homeTeam} align="left" palette={palettes.home} />
 
         <div className="flex flex-col items-center gap-0.5 min-w-[3rem] pt-1">
           {showScore ? (
@@ -101,22 +113,25 @@ export function MatchCard({ match, className }: MatchCardProps) {
               {formatKickoff(match.kickoffAt)}
             </span>
           )}
-          <span
-            className={cn(
-              'text-[0.6rem] uppercase tracking-wider',
-              match.status === 'live' ? 'text-event-positive' : 'text-muted-foreground',
-            )}
-          >
-            {match.status === 'live' && match.currentMinute !== null
-              ? `${match.currentMinute}'`
-              : isPlayed
+          {isLive && match.currentMinute !== null ? (
+            <span
+              data-testid="live-indicator"
+              className="flex items-center gap-1 text-[0.7rem] font-bold uppercase tracking-wider text-event-positive"
+            >
+              <Radio size={11} className="animate-pulse" />
+              {match.currentMinute}&apos;
+            </span>
+          ) : (
+            <span className="text-[0.6rem] uppercase tracking-wider text-muted-foreground">
+              {isPlayed
                 ? 'Encerrado'
                 : match.status === 'postponed'
                   ? 'Adiado'
                   : match.status === 'canceled'
                     ? 'Cancelado'
                     : ''}
-          </span>
+            </span>
+          )}
           {match.venue !== null && (
             <span className="flex items-center gap-1 max-w-[7rem] text-[0.6rem] text-muted-foreground">
               <span aria-hidden>🏟️</span>
@@ -125,7 +140,7 @@ export function MatchCard({ match, className }: MatchCardProps) {
           )}
         </div>
 
-        <TeamBadge team={match.awayTeam} align="right" />
+        <TeamBadge team={match.awayTeam} align="right" palette={palettes.away} />
       </div>
     </Link>
   )

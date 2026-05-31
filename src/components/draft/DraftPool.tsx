@@ -7,6 +7,7 @@ import { PlayerCard } from '@/components/PlayerCard'
 import { POSITIONS, type Position } from '@/lib/contracts/catalog'
 import type { DraftPoolEntryDto } from '@/lib/contracts/draft'
 import type { TeamRefDto } from '@/lib/contracts/rooms'
+import { resolveMatchPalettes } from '@/lib/teamColors'
 
 interface Props {
   pool: DraftPoolEntryDto[]
@@ -56,13 +57,15 @@ export function DraftPool({
     )
   }
 
+  const palettes = resolveMatchPalettes(homeTeam, awayTeam)
+
   function filterPool(side: 'home' | 'away') {
     return pool
       .filter((e) => e.teamSide === side)
       .filter((e) => positionFilter === null || e.athlete.position === positionFilter)
   }
 
-  function renderEntry(entry: DraftPoolEntryDto, team: TeamRefDto) {
+  function renderEntry(entry: DraftPoolEntryDto, palette: { primary: string; secondary: string }) {
     const isPicked = entry.pickedByRole !== null
     const positionExhausted = !positionsRemaining.includes(entry.athlete.position)
     const isInteractive = !disabled && !isPicked && !positionExhausted
@@ -79,8 +82,8 @@ export function DraftPool({
           shortName={entry.athlete.shortName}
           position={entry.athlete.position}
           jerseyNumber={entry.athlete.jerseyNumber}
-          teamPrimaryColor={team.primaryColor}
-          teamSecondaryColor={team.secondaryColor}
+          teamPrimaryColor={palette.primary}
+          teamSecondaryColor={palette.secondary}
           onClick={isInteractive ? () => onPick(entry.athlete.id) : undefined}
         />
         {isPicked && (
@@ -117,11 +120,11 @@ export function DraftPool({
       <div className="grid grid-cols-2 gap-4">
         <section className="space-y-2">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">{homeTeam.shortName}</p>
-          {filterPool('home').map((e) => renderEntry(e, homeTeam))}
+          {filterPool('home').map((e) => renderEntry(e, palettes.home))}
         </section>
         <section className="space-y-2">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">{awayTeam.shortName}</p>
-          {filterPool('away').map((e) => renderEntry(e, awayTeam))}
+          {filterPool('away').map((e) => renderEntry(e, palettes.away))}
         </section>
       </div>
     </div>

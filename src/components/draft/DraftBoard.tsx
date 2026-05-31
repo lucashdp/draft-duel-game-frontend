@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { PlayerCard } from '@/components/PlayerCard'
 import { SNAKE_ORDER, type DraftPickDto } from '@/lib/contracts/draft'
 import type { TeamRefDto } from '@/lib/contracts/rooms'
+import { resolveMatchPalettes } from '@/lib/teamColors'
 
 interface Props {
   picks: DraftPickDto[]
@@ -24,8 +25,9 @@ export function DraftBoard({
 }: Props) {
   const byPickNumber = new Map(picks.map((p) => [p.pickNumber, p]))
 
-  function teamFor(pick: DraftPickDto): TeamRefDto {
-    return pick.athlete.teamId === homeTeam.id ? homeTeam : awayTeam
+  const palettes = resolveMatchPalettes(homeTeam, awayTeam)
+  function paletteFor(pick: DraftPickDto) {
+    return pick.athlete.teamId === homeTeam.id ? palettes.home : palettes.away
   }
 
   function renderSlot(pickNumber: number) {
@@ -49,7 +51,7 @@ export function DraftBoard({
       )
     }
 
-    const team = teamFor(pick)
+    const palette = paletteFor(pick)
     return (
       <div
         key={pickNumber}
@@ -63,8 +65,8 @@ export function DraftBoard({
             shortName={pick.athlete.shortName}
             position={pick.athlete.position}
             jerseyNumber={pick.athlete.jerseyNumber}
-            teamPrimaryColor={team.primaryColor}
-            teamSecondaryColor={team.secondaryColor}
+            teamPrimaryColor={palette.primary}
+            teamSecondaryColor={palette.secondary}
           />
         </div>
       </div>

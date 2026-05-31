@@ -6,11 +6,11 @@ import type { TeamRefDto } from '@/lib/contracts/rooms'
 
 const home: TeamRefDto = {
   id: 'th', name: 'Home', shortName: 'Home', abbreviation: 'HOM',
-  primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF',
 }
 const away: TeamRefDto = {
   id: 'ta', name: 'Away', shortName: 'Away', abbreviation: 'AWY',
-  primaryColor: '#0000FF', secondaryColor: '#FFFFFF',
+  imageUrl: null, primaryColor: '#0000FF', secondaryColor: '#FFFFFF',
 }
 
 function makePick(overrides: { pickNumber: number; role: 'host'|'guest'; teamId: string; position?: 'GOL'|'LAT'|'ZAG'|'MEI'|'ATA' }): DraftPickDto {

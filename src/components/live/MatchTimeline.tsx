@@ -1,6 +1,7 @@
 import type { MatchEvent } from '@/lib/contracts/live'
 import { ACTION_LABELS } from '@/types/domain'
 import { cn } from '@/lib/utils'
+import { ACTION_ICONS } from '@/lib/actionIcons'
 
 interface MatchTimelineProps {
   events: MatchEvent[]
@@ -30,6 +31,7 @@ export function MatchTimeline({ events }: MatchTimelineProps) {
               isPositive ? 'animate-flash-positive' : 'animate-flash-negative',
             )}
           >
+            <span aria-hidden className="text-base leading-none">{ACTION_ICONS[evt.action]}</span>
             <span className="text-xs text-muted-foreground tabular-nums w-8">
               {evt.minute}&apos;
             </span>
