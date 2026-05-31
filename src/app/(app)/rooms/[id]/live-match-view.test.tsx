@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LiveMatchView } from './live-match-view'
@@ -99,13 +99,68 @@ describe('LiveMatchView', () => {
     expect(screen.getByText(/Você venceu/i)).toBeInTheDocument()
   })
 
-  it('toggles sub mode when "Substituir" is clicked', async () => {
+  it('opens the substitution modal when "Substituir" is clicked', async () => {
     const user = userEvent.setup()
     render(<LiveMatchView room={makeRoom()} isHost />, { wrapper })
 
     const subButton = screen.getByRole('button', { name: /substituir/i })
     await user.click(subButton)
+    expect(screen.getByText(/Substituir jogador/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument()
+  })
+
+  it('walks through the 3-step modal and calls the substitution mutation', async () => {
+    mutateAsync.mockResolvedValue(undefined)
+    const user = userEvent.setup()
+    const room = makeRoom(
+      {},
+      {
+        hostLineup: [
+          {
+            athlete: {
+              id: '00000000-0000-4000-8000-0000000000a1',
+              name: 'Leo Pereira',
+              shortName: 'Leo',
+              position: 'ZAG',
+              jerseyNumber: 4,
+              teamId: HOME_TEAM.id,
+            },
+            cumulativePoints: 8,
+          },
+        ],
+        pool: [
+          {
+            athlete: {
+              id: '00000000-0000-4000-8000-0000000000b2',
+              name: 'Murilo',
+              shortName: 'Murilo',
+              position: 'ZAG',
+              jerseyNumber: 3,
+              teamId: HOME_TEAM.id,
+            },
+            teamSide: 'home',
+            pointsSoFar: 5,
+          },
+        ],
+      },
+    )
+    render(<LiveMatchView room={room} isHost />, { wrapper })
+
+    await user.click(screen.getByRole('button', { name: /substituir/i }))
+    const modal = within(screen.getByText(/Substituir jogador/i).closest('[data-slot="dialog-content"]') as HTMLElement)
+    // step 1: pick who leaves
+    await user.click(modal.getByText('Leo'))
+    await user.click(modal.getByRole('button', { name: /próximo/i }))
+    // step 2: pick who enters
+    await user.click(modal.getByText('Murilo'))
+    await user.click(modal.getByRole('button', { name: /próximo/i }))
+    // step 3: confirm
+    await user.click(modal.getByRole('button', { name: /confirmar substituição/i }))
+
+    expect(mutateAsync).toHaveBeenCalledWith({
+      removeAthleteId: '00000000-0000-4000-8000-0000000000a1',
+      addAthleteId: '00000000-0000-4000-8000-0000000000b2',
+    })
   })
 
   it('hides sub button when finished', () => {

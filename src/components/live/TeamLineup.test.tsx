@@ -4,6 +4,12 @@ import { TeamLineup } from './TeamLineup'
 import type { LineupSlot } from '@/lib/contracts/live'
 import type { Position } from '@/lib/contracts/catalog'
 
+const HOME_TEAM_ID = '00000000-0000-4000-8000-000000000020'
+const palettes = {
+  home: { primary: '#FF0000', secondary: '#FFFFFF' },
+  away: { primary: '#008000', secondary: '#FFFFFF' },
+}
+
 const slot = (id: string, pos: Position, name: string, points = 0): LineupSlot => ({
   athlete: {
     id,
@@ -11,7 +17,7 @@ const slot = (id: string, pos: Position, name: string, points = 0): LineupSlot =
     shortName: name,
     position: pos,
     jerseyNumber: 9,
-    teamId: '00000000-0000-4000-8000-000000000020',
+    teamId: HOME_TEAM_ID,
   },
   cumulativePoints: points,
 })
@@ -25,7 +31,7 @@ describe('TeamLineup', () => {
       slot('a-mei', 'MEI', 'Mei'),
       slot('a-lat', 'LAT', 'Lat'),
     ]
-    render(<TeamLineup title="Time" lineup={lineup} />)
+    render(<TeamLineup title="Time" lineup={lineup} palettes={palettes} homeTeamId={HOME_TEAM_ID} />)
     const slots = screen.getAllByTestId(/lineup-slot-/)
     expect(slots[0]).toHaveTextContent('Gol')
     expect(slots[1]).toHaveTextContent('Lat')
@@ -38,12 +44,12 @@ describe('TeamLineup', () => {
     const lineup = [slot('a-1', 'ATA', 'Pedro', 8)]
     const fn = vi.fn()
     const { rerender } = render(
-      <TeamLineup title="Time" lineup={lineup} subMode={false} onSelectRemove={fn} />,
+      <TeamLineup title="Time" lineup={lineup} palettes={palettes} homeTeamId={HOME_TEAM_ID} subMode={false} onSelectRemove={fn} />,
     )
     fireEvent.click(screen.getByTestId('lineup-slot-a-1'))
     expect(fn).not.toHaveBeenCalled()
 
-    rerender(<TeamLineup title="Time" lineup={lineup} subMode={true} onSelectRemove={fn} />)
+    rerender(<TeamLineup title="Time" lineup={lineup} palettes={palettes} homeTeamId={HOME_TEAM_ID} subMode={true} onSelectRemove={fn} />)
     fireEvent.click(screen.getByTestId('lineup-slot-a-1'))
     expect(fn).toHaveBeenCalledWith(lineup[0].athlete)
   })
