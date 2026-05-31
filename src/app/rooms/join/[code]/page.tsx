@@ -14,13 +14,15 @@ import { getLoginPath } from '@/lib/auth'
 function getJoinButtonLabel({
   isPending,
   isAuthed,
+  isWaiting,
 }: {
   isPending: boolean
   isAuthed: boolean
+  isWaiting: boolean
 }): string {
   if (isPending) return 'Entrando…'
-  if (!isAuthed) return 'Fazer login pra entrar'
-  return 'Entrar na sala'
+  if (!isAuthed) return isWaiting ? 'Fazer login pra entrar' : 'Fazer login pra voltar'
+  return isWaiting ? 'Entrar na sala' : 'Voltar pra sala'
 }
 
 export default function RoomJoinPage({
@@ -81,26 +83,30 @@ export default function RoomJoinPage({
 
   if (!preview.data) return null
 
-  if (preview.data.status !== RoomStatus.WAITING) {
-    return (
-      <main className="container mx-auto max-w-md px-4 py-12 text-center space-y-2">
-        <h1 className="text-xl font-medium">Essa sala já está em andamento.</h1>
-        <p className="text-sm text-muted-foreground">
-          O anfitrião já recebeu um oponente.
-        </p>
-      </main>
-    )
-  }
+  const isWaiting = preview.data.status === RoomStatus.WAITING
 
   return (
     <main className="container mx-auto max-w-md px-4 py-12 space-y-6">
       <header className="text-center space-y-2">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-          Você foi convidado
-        </p>
-        <h1 className="text-2xl font-semibold">
-          {preview.data.host.nickname} chamou você pro Draft Duel
-        </h1>
+        {isWaiting ? (
+          <>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Você foi convidado
+            </p>
+            <h1 className="text-2xl font-semibold">
+              {preview.data.host.nickname} chamou você pro Draft Duel
+            </h1>
+          </>
+        ) : (
+          <>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Essa sala já começou
+            </p>
+            <h1 className="text-2xl font-semibold">
+              Se você é um dos jogadores, entre pra continuar
+            </h1>
+          </>
+        )}
       </header>
 
       <div className="rounded-lg border bg-surface p-4 text-center">
@@ -132,7 +138,7 @@ export default function RoomJoinPage({
         {join.isPending && (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         )}
-        {getJoinButtonLabel({ isPending: join.isPending, isAuthed: Boolean(user) })}
+        {getJoinButtonLabel({ isPending: join.isPending, isAuthed: Boolean(user), isWaiting })}
       </Button>
     </main>
   )

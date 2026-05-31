@@ -7,6 +7,7 @@ import {
   disconnectSocket,
   socketEmit,
   socketOn,
+  socketOnConnect,
 } from '@/lib/socket'
 import {
   WsClientEvent,
@@ -59,14 +60,25 @@ export function useRoomSocket(roomId: string): void {
       handleAbandoned,
     )
 
-    socketEmit<{ roomId: string }>(WsClientEvent.ROOM_JOIN, { roomId }, (snapshot) => {
-      handleState(snapshot)
-    })
+    const joinRoom = () => {
+      socketEmit<{ roomId: string }>(WsClientEvent.ROOM_JOIN, { roomId }, (snapshot) => {
+        handleState(snapshot)
+      })
+    }
+
+    // Initial join (socket.io buffers this until the connection opens).
+    joinRoom()
+    // Re-join on every reconnect: a reconnected socket is a fresh server-side
+    // socket that is NOT in the room channel, so without this the room goes
+    // silent after any drop — and drops are routine on mobile (tab backgrounded,
+    // Wi-Fi↔cellular switch). The snapshot ack also re-syncs any missed state.
+    const offConnect = socketOnConnect(joinRoom)
 
     return () => {
       offState()
       offGuestJoined()
       offAbandoned()
+      offConnect()
       socketEmit<{ roomId: string }>(WsClientEvent.ROOM_LEAVE, { roomId })
       disconnectSocket()
     }

@@ -33,6 +33,10 @@ vi.mock('@/lib/socket', () => ({
     sock.on(event, handler as (...args: unknown[]) => void)
     return () => sock.off(event, handler as (...args: unknown[]) => void)
   },
+  socketOnConnect: (handler: () => void) => {
+    sock.on('connect', handler as (...args: unknown[]) => void)
+    return () => sock.off('connect', handler as (...args: unknown[]) => void)
+  },
 }))
 
 describe('useRoomSocket', () => {
@@ -70,6 +74,26 @@ describe('useRoomSocket', () => {
     const cached = qc.getQueryData<RoomSnapshotDto>(['room', 'r-1'])
     expect(cached?.status).toBe('drafting')
     expect(cached?.guest).toEqual({ id: 'g', nickname: 'bob' })
+  })
+
+  it('re-emits room:join when the socket reconnects', () => {
+    const qc = new QueryClient()
+    function Wrapper({ children }: { children: ReactNode }) {
+      return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    }
+    renderHook(() => useRoomSocket('r-1'), { wrapper: Wrapper })
+
+    const joinCount = () =>
+      sock.emit.mock.calls.filter((c) => c[0] === 'room:join').length
+    // Mount performs the initial join.
+    expect(joinCount()).toBe(1)
+
+    // A reconnected socket starts outside the room channel — the hook must
+    // re-join, otherwise the room goes silent after the drop.
+    act(() => {
+      sockEvents.emit('connect')
+    })
+    expect(joinCount()).toBe(2)
   })
 
   it('updates the cache on room:abandoned', () => {

@@ -1,5 +1,6 @@
 import { io, type Socket } from 'socket.io-client'
 import { env } from '@/lib/env'
+import { refreshOnce } from '@/lib/api'
 import {
   type WsClientEvent,
   type WsServerEvent,
@@ -17,13 +18,44 @@ let socket: Socket | null = null
 // Refcount so multiple consumers (lobby + future draft/match views) can share
 // one socket. Last consumer to call disconnectSocket() actually disconnects.
 let refCount = 0
+// Whether we've already tried an auth refresh since the last successful connect.
+// Reset on every `connect` so a fresh drop gets one refresh attempt, but a
+// still-rejected handshake after refreshing stops the retry loop.
+let authRefreshTried = false
 
 export function getSocket(): Socket {
   if (!socket) {
     socket = io(env.NEXT_PUBLIC_WS_URL, {
       withCredentials: true,
       autoConnect: false,
-      transports: ['websocket'],
+      // Prefer raw WebSocket, but allow HTTP long-polling as a fallback. Mobile
+      // networks, captive portals and corporate proxies frequently block
+      // WebSocket; without a fallback the socket silently fails to connect there
+      // (the instability that reproduced on phones but not desktop). Single
+      // Railway replica → polling needs no sticky sessions.
+      transports: ['websocket', 'polling'],
+    })
+
+    socket.on('connect', () => {
+      authRefreshTried = false
+    })
+
+    // The socket is authenticated once, at the handshake, from the short-lived
+    // (15 min) access cookie. When it expires, a (re)connect is rejected with
+    // UNAUTHORIZED and socket.io would otherwise retry forever with the same
+    // stale cookie — a permanently-dead, silent socket until a full page reload.
+    // Refresh the cookie once, then reconnect; if it still fails, stop retrying.
+    socket.on('connect_error', (err: Error) => {
+      const isAuthError = /unauthorized/i.test(err?.message ?? '')
+      if (!isAuthError) return
+      if (authRefreshTried) {
+        socket?.disconnect()
+        return
+      }
+      authRefreshTried = true
+      refreshOnce()
+        .then(() => socket?.connect())
+        .catch(() => socket?.disconnect())
     })
   }
   return socket
@@ -57,5 +89,20 @@ export function socketOn<T>(event: WsServerEvent, handler: (payload: T) => void)
   sock.on(event, handler as (...args: unknown[]) => void)
   return () => {
     sock.off(event, handler as (...args: unknown[]) => void)
+  }
+}
+
+/**
+ * Run `handler` on every (re)connect of the shared socket. A reconnected socket
+ * is a brand-new server-side socket that is NOT in any room channel, so room
+ * consumers must re-emit `room:join` here — otherwise the page goes silent
+ * (no draft/match broadcasts) until a slow REST poll heals it. Returns an
+ * unsubscribe function.
+ */
+export function socketOnConnect(handler: () => void): () => void {
+  const sock = getSocket()
+  sock.on('connect', handler)
+  return () => {
+    sock.off('connect', handler)
   }
 }
