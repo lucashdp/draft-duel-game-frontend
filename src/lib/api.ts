@@ -40,7 +40,13 @@ async function executeRequest<T>(path: string, init?: RequestOptions): Promise<T
 
 let inflightRefresh: Promise<void> | null = null
 
-function refreshOnce(): Promise<void> {
+/**
+ * Refresh the access cookie via /auth/refresh, de-duplicating concurrent calls.
+ * Exported so the WebSocket layer can recover from a handshake rejected for an
+ * expired access cookie (the socket authenticates once, at connect time, and
+ * has no built-in refresh — unlike REST requests here).
+ */
+export function refreshOnce(): Promise<void> {
   if (!inflightRefresh) {
     inflightRefresh = executeRequest<void>('/auth/refresh', {
       method: 'POST',

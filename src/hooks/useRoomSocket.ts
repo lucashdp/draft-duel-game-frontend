@@ -5,8 +5,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   connectSocket,
   disconnectSocket,
+  isSocketConnected,
   socketEmit,
   socketOn,
+  socketOnConnect,
 } from '@/lib/socket'
 import {
   WsClientEvent,
@@ -59,14 +61,31 @@ export function useRoomSocket(roomId: string): void {
       handleAbandoned,
     )
 
-    socketEmit<{ roomId: string }>(WsClientEvent.ROOM_JOIN, { roomId }, (snapshot) => {
-      handleState(snapshot)
-    })
+    const joinRoom = () => {
+      socketEmit<{ roomId: string }>(WsClientEvent.ROOM_JOIN, { roomId }, (snapshot) => {
+        handleState(snapshot)
+      })
+    }
+
+    // Join once the connection is open. On a cold socket the `connect` handler
+    // below fires the first join; joining eagerly here too would double-fire on
+    // that first connect (socket.io buffers the eager emit and flushes it on
+    // `connect`, right alongside the handler). Only join eagerly when the socket
+    // is ALREADY open — a second consumer, or a remount over a live connection —
+    // since `connect` won't fire again for those.
+    if (isSocketConnected()) joinRoom()
+    // Re-join on every (re)connect: a reconnected socket is a fresh server-side
+    // socket that is NOT in the room channel, so without this the room goes
+    // silent after any drop — and drops are routine on mobile (tab backgrounded,
+    // Wi-Fi↔cellular switch). This also covers the cold-socket first connect.
+    // The snapshot ack also re-syncs any missed state.
+    const offConnect = socketOnConnect(joinRoom)
 
     return () => {
       offState()
       offGuestJoined()
       offAbandoned()
+      offConnect()
       socketEmit<{ roomId: string }>(WsClientEvent.ROOM_LEAVE, { roomId })
       disconnectSocket()
     }

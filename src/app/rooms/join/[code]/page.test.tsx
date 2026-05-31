@@ -112,4 +112,30 @@ describe('/rooms/join/[code]', () => {
     await user.click(screen.getByRole('button', { name: /entrar/i }))
     await waitFor(() => expect(push).toHaveBeenCalledWith('/rooms/00000000-0000-4000-8000-000000000001'))
   })
+
+  it('lets an existing member re-enter a room that is already under way', async () => {
+    const user = userEvent.setup()
+    // The room moved past WAITING — previously a dead-end; now it offers a
+    // "voltar pra sala" action that re-enters via the idempotent join.
+    vi.mocked(api.get).mockResolvedValueOnce({ ...preview, status: 'drafting' })
+    vi.mocked(api.post).mockResolvedValueOnce({
+      id: '00000000-0000-4000-8000-000000000001',
+      code: 'K7M2QH',
+      status: 'drafting',
+      match: { ...preview.match, id: '00000000-0000-4000-8000-000000000010', homeTeam: { ...preview.match.homeTeam, id: 'h' }, awayTeam: { ...preview.match.awayTeam, id: 'a' } },
+      host: { id: '00000000-0000-4000-8000-0000000000a0', nickname: 'alice' },
+      guest: { id: '00000000-0000-4000-8000-0000000000b0', nickname: 'bob' },
+      winner: null,
+      expiresAt: preview.expiresAt,
+      createdAt: '2026-05-17T10:00:00.000Z',
+      draft: null,
+      live: null,
+    })
+    await act(async () => {
+      wrap(<RoomJoinPage params={Promise.resolve({ code: 'K7M2QH' })} />)
+    })
+    await waitFor(() => screen.getByRole('button', { name: /voltar pra sala/i }))
+    await user.click(screen.getByRole('button', { name: /voltar pra sala/i }))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/rooms/00000000-0000-4000-8000-000000000001'))
+  })
 })
