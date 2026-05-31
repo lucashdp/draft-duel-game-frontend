@@ -48,6 +48,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
   const interpolatedMinute = useInterpolatedMinute(
     live?.currentMinute ?? null,
     live?.currentMinuteAt ?? null,
+    live?.clockState ?? 'running',
   )
 
   // Rooms that abandon during WAITING/DRAFTING never get a `live` snapshot —
@@ -100,6 +101,7 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
         awayScore={live.awayScore}
         matchStatus={live.matchStatus}
         minute={interpolatedMinute}
+        clockState={live.clockState}
       />
       <ScoreboardCards
         myName={myName}

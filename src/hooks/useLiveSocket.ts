@@ -104,8 +104,12 @@ export function useLiveSocket(roomId: string): void {
             ...prev.live,
             currentMinute: payload.currentMinute,
             currentMinuteAt: payload.currentMinuteAt,
-            homeScore: payload.homeScore,
-            awayScore: payload.awayScore,
+            clockState: payload.clockState,
+            // Defensive guard: a tick with null score must not blank a score
+            // the cache already has. Root cause of the F5 0x0 bug is still
+            // under investigation — see follow-up note in PR #15.
+            homeScore: payload.homeScore ?? prev.live.homeScore,
+            awayScore: payload.awayScore ?? prev.live.awayScore,
           },
         }
       })

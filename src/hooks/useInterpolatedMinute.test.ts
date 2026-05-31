@@ -37,4 +37,15 @@ describe('useInterpolatedMinute', () => {
     })
     expect(result.current).toBe(32)
   })
+
+  it('freezes the minute while at halftime', () => {
+    const at = new Date().toISOString()
+    const { result } = renderHook(() => useInterpolatedMinute(45, at, 'halftime'))
+    expect(result.current).toBe(45)
+
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
+    expect(result.current).toBe(45) // still frozen
+  })
 })
