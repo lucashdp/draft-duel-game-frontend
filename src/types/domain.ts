@@ -57,6 +57,7 @@ export const ACTION_LABELS: Record<ActionType, string> = {
   TACKLE_WON: 'Desarme',
   KEY_PASS: 'Passe Decisivo',
   SHOT_ON_TARGET: 'Finalização Certa',
+  SHOT_OFF_TARGET: 'Finalização para Fora',
   CLEAN_SHEET: 'Jogo sem Sofrer Gol',
   HARD_SAVE: 'Defesa Difícil',
   GOAL_CONCEDED: 'Gol Sofrido',
