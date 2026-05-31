@@ -26,7 +26,9 @@ export function formatDayLabel(iso: string): string {
 
 /**
  * Buckets matches by the day they kick off on, with days in ascending order and
- * matches within each day ordered by ascending kickoff.
+ * matches within each day ordered by ascending kickoff, breaking kickoff ties by
+ * `id` so the listing order stays stable across refetches regardless of the order
+ * the API returns same-kickoff matches in.
  */
 export function groupMatchesByDay(matches: MatchSummaryDto[]): MatchDayGroup[] {
   const buckets = new Map<string, MatchSummaryDto[]>()
@@ -42,6 +44,8 @@ export function groupMatchesByDay(matches: MatchSummaryDto[]): MatchDayGroup[] {
     .map(([key, dayMatches]) => ({
       key,
       label: formatDayLabel(dayMatches[0].kickoffAt),
-      matches: [...dayMatches].sort((a, b) => a.kickoffAt.localeCompare(b.kickoffAt)),
+      matches: [...dayMatches].sort(
+        (a, b) => a.kickoffAt.localeCompare(b.kickoffAt) || a.id.localeCompare(b.id),
+      ),
     }))
 }

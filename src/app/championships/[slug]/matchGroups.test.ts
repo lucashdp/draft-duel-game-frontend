@@ -38,6 +38,18 @@ describe('groupMatchesByDay', () => {
     expect(groups[1].matches.map((m) => m.id)).toEqual(['m-early-31', 'm-late-31'])
   })
 
+  it('orders matches with the same kickoff deterministically regardless of input order', () => {
+    const a = match('m-aaa', '2026-05-31T16:00:00.000Z')
+    const b = match('m-bbb', '2026-05-31T16:00:00.000Z')
+    const c = match('m-ccc', '2026-05-31T16:00:00.000Z')
+
+    const order1 = groupMatchesByDay([a, b, c])[0].matches.map((m) => m.id)
+    const order2 = groupMatchesByDay([c, a, b])[0].matches.map((m) => m.id)
+
+    expect(order1).toEqual(['m-aaa', 'm-bbb', 'm-ccc'])
+    expect(order2).toEqual(order1)
+  })
+
   it('returns an empty array for no matches', () => {
     expect(groupMatchesByDay([])).toEqual([])
   })
