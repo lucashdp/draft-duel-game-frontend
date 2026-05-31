@@ -186,6 +186,29 @@ describe('useLiveSocket', () => {
     invalidateSpy.mockRestore()
   })
 
+  it('preserves a known score when a tick reports null home/away', () => {
+    const snap = makeSnapshot()
+    snap.live!.homeScore = 2
+    snap.live!.awayScore = 1
+    const { qc, Wrapper } = wrapper(snap)
+    renderHook(() => useLiveSocket(ROOM_ID), { wrapper: Wrapper })
+
+    act(() =>
+      listeners.get('match:tick')!({
+        currentMinute: 51,
+        currentMinuteAt: '2026-06-11T19:51:00.000Z',
+        clockState: 'running',
+        homeScore: null,
+        awayScore: null,
+      }),
+    )
+
+    const updated = qc.getQueryData<RoomSnapshotDto>(['room', ROOM_ID])!
+    expect(updated.live?.homeScore).toBe(2) // preserved, not blanked
+    expect(updated.live?.awayScore).toBe(1) // preserved, not blanked
+    expect(updated.live?.currentMinute).toBe(51) // clock still advances
+  })
+
   it('drops the update and invalidates the room query when payload is malformed', () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { qc, Wrapper } = wrapper(makeSnapshot())
