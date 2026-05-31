@@ -66,7 +66,14 @@ export function SubstitutionModal({
                 points={slot.cumulativePoints}
                 palette={palette(slot.athlete.teamId)}
                 selected={removeId === slot.athlete.id}
-                onClick={() => setRemoveId(slot.athlete.id)}
+                onClick={() => {
+                  // Trocar quem sai invalida quem entra (posição muda) — limpa a
+                  // escolha do passo 2 pra não confirmar um par de posições incompatíveis.
+                  if (slot.athlete.id !== removeId) {
+                    setRemoveId(slot.athlete.id)
+                    setAddId(null)
+                  }
+                }}
               />
             ))}
           </div>

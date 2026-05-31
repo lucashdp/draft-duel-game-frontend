@@ -23,4 +23,31 @@ describe('SubstitutionModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /confirmar/i }))
     expect(onConfirm).toHaveBeenCalledWith('Leo', 'Murilo')
   })
+
+  it('limpa quem entra ao trocar a posição de quem sai (evita par incompatível)', () => {
+    const lineup2 = [
+      { athlete: athlete('Leo', 'ZAG'), cumulativePoints: 8 },
+      { athlete: athlete('Alisson', 'GOL'), cumulativePoints: 6 },
+    ]
+    const pool2 = [
+      { athlete: athlete('Murilo', 'ZAG'), teamSide: 'home' as const, pointsSoFar: 5 },
+      { athlete: athlete('Weverton', 'GOL'), teamSide: 'home' as const, pointsSoFar: 4 },
+    ]
+    render(
+      <SubstitutionModal open lineup={lineup2} pool={pool2} palettes={palettes} homeTeamId="t1"
+        loading={false} onClose={() => {}} onConfirm={() => {}} />,
+    )
+    // passo 1: escolhe Leo (ZAG) → passo 2: escolhe Murilo (ZAG) → passo 3
+    fireEvent.click(screen.getByText('Leo'))
+    fireEvent.click(screen.getByRole('button', { name: /próximo/i }))
+    fireEvent.click(screen.getByText('Murilo'))
+    fireEvent.click(screen.getByRole('button', { name: /próximo/i }))
+    // volta ao passo 1 e troca pra Alisson (GOL)
+    fireEvent.click(screen.getByRole('button', { name: /voltar/i }))
+    fireEvent.click(screen.getByRole('button', { name: /voltar/i }))
+    fireEvent.click(screen.getByText('Alisson'))
+    fireEvent.click(screen.getByRole('button', { name: /próximo/i }))
+    // passo 2: "Próximo" desabilitado pois quem-entra foi limpo ao trocar a posição
+    expect(screen.getByRole('button', { name: /próximo/i })).toBeDisabled()
+  })
 })
