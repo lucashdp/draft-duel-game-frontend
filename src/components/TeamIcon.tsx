@@ -17,8 +17,8 @@ export function TeamIcon({ imageUrl, primaryColor, secondaryColor, size = 'md' }
 
   if (imageUrl) {
     return (
-      <div className={cn(sizeClass, 'rounded shrink-0 overflow-hidden flex items-center justify-center bg-black/30')}>
-        <img src={imageUrl} alt="" className="w-full h-full object-contain p-0.5" />
+      <div className={cn(sizeClass, 'shrink-0 flex items-center justify-center')}>
+        <img src={imageUrl} alt="" className="w-full h-full object-contain" />
       </div>
     )
   }
