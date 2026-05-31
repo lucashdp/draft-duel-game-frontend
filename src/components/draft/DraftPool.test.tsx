@@ -5,8 +5,8 @@ import { DraftPool } from './DraftPool'
 import type { DraftPoolEntryDto } from '@/lib/contracts/draft'
 import type { TeamRefDto } from '@/lib/contracts/rooms'
 
-const home: TeamRefDto = { id: 'th', name: 'Home', shortName: 'Home', abbreviation: 'HOM', primaryColor: '#FF0000', secondaryColor: '#FFFFFF' }
-const away: TeamRefDto = { id: 'ta', name: 'Away', shortName: 'Away', abbreviation: 'AWY', primaryColor: '#0000FF', secondaryColor: '#FFFFFF' }
+const home: TeamRefDto = { id: 'th', name: 'Home', shortName: 'Home', abbreviation: 'HOM', imageUrl: null, primaryColor: '#FF0000', secondaryColor: '#FFFFFF' }
+const away: TeamRefDto = { id: 'ta', name: 'Away', shortName: 'Away', abbreviation: 'AWY', imageUrl: null, primaryColor: '#0000FF', secondaryColor: '#FFFFFF' }
 
 function makeEntry(opts: { id: string; teamSide: 'home'|'away'; teamId: string; position?: 'GOL'|'LAT'|'ZAG'|'MEI'|'ATA'; picked?: 'host'|'guest'|null }): DraftPoolEntryDto {
   return {

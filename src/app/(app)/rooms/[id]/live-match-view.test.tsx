@@ -20,6 +20,7 @@ const HOME_TEAM = {
   name: 'Flamengo',
   shortName: 'FLA',
   abbreviation: 'FLA',
+  imageUrl: null,
   primaryColor: '#FF0000',
   secondaryColor: '#FFFFFF',
 }
@@ -28,6 +29,7 @@ const AWAY_TEAM = {
   name: 'Palmeiras',
   shortName: 'PAL',
   abbreviation: 'PAL',
+  imageUrl: null,
   primaryColor: '#008000',
   secondaryColor: '#FFFFFF',
 }

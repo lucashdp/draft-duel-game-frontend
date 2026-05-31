@@ -40,6 +40,7 @@ const teamRefSchema = z.object({
   name: z.string(),
   shortName: z.string(),
   abbreviation: z.string(),
+  imageUrl: z.string().nullable(),
   primaryColor: z.string().nullable(),
   secondaryColor: z.string().nullable(),
 })
@@ -101,6 +102,7 @@ export const roomSummarySchema = z.object({
   status: roomStatusSchema,
   role: roleSchema,
   match: z.object({
+    id: z.string().uuid(),
     kickoffAt: z.string(),
     status: matchStatusSchema,
     homeTeam: teamRefSummarySchema,
