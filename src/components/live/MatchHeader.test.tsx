@@ -20,6 +20,7 @@ const baseProps = {
   awayScore: 0,
   matchStatus: 'live' as const,
   minute: 30,
+  clockState: 'running' as const,
 }
 
 describe('MatchHeader', () => {

@@ -49,6 +49,7 @@ function makeSnapshot(): RoomSnapshotDto {
       matchStatus: 'live',
       currentMinute: 10,
       currentMinuteAt: '2026-06-11T19:10:00.000Z',
+      clockState: 'running',
       homeScore: 0,
       awayScore: 0,
       hostScore: 0,
@@ -124,6 +125,7 @@ describe('useLiveSocket', () => {
     const payload: MatchTickPayload = {
       currentMinute: 20,
       currentMinuteAt: '2026-06-11T19:20:00.000Z',
+      clockState: 'running',
       homeScore: 1,
       awayScore: 0,
     }
