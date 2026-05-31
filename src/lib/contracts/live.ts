@@ -51,6 +51,7 @@ export const liveStateSchema = z.object({
   matchStatus: matchStatusSchema,
   currentMinute: z.number().int().nullable(),
   currentMinuteAt: z.string().nullable(),
+  clockState: z.enum(['running', 'halftime']).default('running'),
   homeScore: z.number().int().nullable(),
   awayScore: z.number().int().nullable(),
   hostScore: z.number(),
@@ -91,6 +92,7 @@ export type MatchEventCanceledPayload = z.infer<typeof matchEventCanceledPayload
 export const matchTickPayloadSchema = z.object({
   currentMinute: z.number().int(),
   currentMinuteAt: z.string(),
+  clockState: z.enum(['running', 'halftime']).default('running'),
   homeScore: z.number().int().nullable(),
   awayScore: z.number().int().nullable(),
 })
