@@ -68,4 +68,4 @@ export const ACTION_LABELS: Record<ActionType, string> = {
   OFFSIDE: 'Impedimento',
 }
 
-export const POSITION_ORDER: Position[] = ['GOL', 'LAT', 'ZAG', 'MEI', 'ATA']
+export const POSITION_ORDER: Position[] = ['GOL', 'ZAG', 'LAT', 'MEI', 'ATA']
