@@ -139,4 +139,23 @@ describe('useRoomSocket', () => {
     expect(cached?.status).toBe('finished')
     expect(cached?.winner).toBe('guest')
   })
+
+  it('refetches the full snapshot on room:guest_joined so the draft state loads', () => {
+    // The guest_joined payload carries only { guest, status } — not the draft
+    // state. The host's cached snapshot was built while WAITING (draft: null),
+    // so flipping status to "drafting" alone renders an empty DraftView
+    // (`if (!draft) return null`). The hook must invalidate the room query to
+    // pull the complete DRAFTING snapshot (which includes `draft`) from REST.
+    const qc = new QueryClient()
+    function Wrapper({ children }: { children: ReactNode }) {
+      return <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    }
+    qc.setQueryData(['room', 'r-1'], { id: 'r-1', status: 'waiting', guest: null, draft: null })
+    const invalidateSpy = vi.spyOn(qc, 'invalidateQueries')
+    renderHook(() => useRoomSocket('r-1'), { wrapper: Wrapper })
+    act(() => {
+      sockEvents.emit('room:guest_joined', { guest: { id: 'g', nickname: 'bob' }, status: 'drafting' })
+    })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['room', 'r-1'] })
+  })
 })

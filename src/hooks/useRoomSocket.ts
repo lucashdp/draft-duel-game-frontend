@@ -38,10 +38,20 @@ export function useRoomSocket(roomId: string): void {
     }
 
     const handleGuestJoined = (payload: RoomGuestJoinedPayload) => {
+      // Optimistic merge: instant feedback that the opponent arrived and the
+      // room flipped to DRAFTING.
       queryClient.setQueryData<RoomSnapshotDto | undefined>(['room', roomId], (prev) => {
         if (!prev) return prev
         return { ...prev, status: payload.status, guest: payload.guest }
       })
+      // …but the payload carries only { guest, status }, NOT the draft state.
+      // The host's cached snapshot was built while WAITING (`draft: null`), so
+      // flipping to DRAFTING alone renders an empty DraftView (`if (!draft)
+      // return null`). Refetch the full DRAFTING snapshot — which the backend
+      // only populates with `draft` once status !== WAITING — so the board
+      // actually loads instead of waiting for the 60s lobby poll or a manual
+      // refresh.
+      queryClient.invalidateQueries({ queryKey: ['room', roomId] })
     }
 
     const handleAbandoned = (payload: RoomAbandonedPayload) => {
