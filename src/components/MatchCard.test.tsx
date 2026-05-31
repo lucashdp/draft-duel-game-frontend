@@ -61,6 +61,18 @@ describe('MatchCard', () => {
     expect(screen.getByText(/encerrad/i)).toBeInTheDocument()
   })
 
+  it('shows the score and "Encerrado" when a played match is reported as scheduled (score present)', () => {
+    // The backend can roll a finished match back to "scheduled" on a later calendar
+    // sync (Cartola drops periodo_tr) while keeping its final score. The card must
+    // surface the result rather than hiding it behind the kickoff time.
+    render(
+      <MatchCard match={makeMatch({ status: 'scheduled', homeScore: 2, awayScore: 1 })} />,
+    )
+    expect(screen.getByText('2')).toBeInTheDocument()
+    expect(screen.getByText('1')).toBeInTheDocument()
+    expect(screen.getByText(/encerrad/i)).toBeInTheDocument()
+  })
+
   it('labels postponed matches', () => {
     render(<MatchCard match={makeMatch({ status: 'postponed' })} />)
     expect(screen.getByText(/adiado/i)).toBeInTheDocument()
