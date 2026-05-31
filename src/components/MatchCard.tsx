@@ -69,7 +69,12 @@ function TeamBadge({ team, align }: { team: MatchTeamSummaryDto; align: 'left' |
 }
 
 export function MatchCard({ match, className }: MatchCardProps) {
-  const showScore = match.status === 'live' || match.status === 'finished'
+  // The backend can roll a finished match back to "scheduled" on a later calendar sync
+  // (Cartola drops periodo_tr) while preserving its score. Trust the score, not just the
+  // status: a scheduled match that already has a result is really a played one.
+  const hasScore = match.homeScore !== null && match.awayScore !== null
+  const isPlayed = match.status === 'finished' || (match.status === 'scheduled' && hasScore)
+  const showScore = match.status === 'live' || isPlayed
 
   return (
     <Link
@@ -104,7 +109,7 @@ export function MatchCard({ match, className }: MatchCardProps) {
           >
             {match.status === 'live' && match.currentMinute !== null
               ? `${match.currentMinute}'`
-              : match.status === 'finished'
+              : isPlayed
                 ? 'Encerrado'
                 : match.status === 'postponed'
                   ? 'Adiado'
