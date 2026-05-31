@@ -10,6 +10,6 @@ export function sortDraftPool(entries: DraftPoolEntryDto[]): DraftPoolEntryDto[]
     const posDiff =
       POSITION_ORDER.indexOf(a.athlete.position) - POSITION_ORDER.indexOf(b.athlete.position)
     if (posDiff !== 0) return posDiff
-    return (a.athlete.jerseyNumber ?? 99) - (b.athlete.jerseyNumber ?? 99)
+    return (a.athlete.jerseyNumber ?? Infinity) - (b.athlete.jerseyNumber ?? Infinity)
   })
 }
