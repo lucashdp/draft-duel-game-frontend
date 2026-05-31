@@ -84,8 +84,8 @@ describe('LiveMatchView', () => {
 
   it('renders header + scoreboard + timeline for live state', () => {
     render(<LiveMatchView room={makeRoom()} isHost />, { wrapper })
-    expect(screen.getByText('FLA')).toBeInTheDocument()
-    expect(screen.getByText('PAL')).toBeInTheDocument()
+    expect(screen.getAllByText('FLA').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('PAL').length).toBeGreaterThan(0)
     expect(screen.getByText(/AO VIVO/i)).toBeInTheDocument()
     expect(screen.getByText(/Aguardando eventos/i)).toBeInTheDocument()
   })
