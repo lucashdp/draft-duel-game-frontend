@@ -98,6 +98,20 @@ describe('useDraftSocket', () => {
     expect(listeners.size).toBe(0)
   })
 
+  it('invalida a query da sala no match:started (puxa o snapshot live)', () => {
+    const { qc, Wrapper } = wrapper(makeSnapshot())
+    const invalidateSpy = vi.spyOn(qc, 'invalidateQueries')
+    renderHook(() => useDraftSocket(ROOM_ID), { wrapper: Wrapper })
+    act(() =>
+      listeners.get('match:started')!({
+        startedAt: '2026-06-11T19:30:00.000Z',
+        hostLineup: [ATH], guestLineup: [ATH],
+      }),
+    )
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['room', ROOM_ID] })
+    invalidateSpy.mockRestore()
+  })
+
   it('drops the update and invalidates the room query when payload is malformed', () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { qc, Wrapper } = wrapper(makeSnapshot())
