@@ -211,6 +211,46 @@ describe('useLiveSocket', () => {
     expect(updated.live?.currentMinute).toBe(51) // clock still advances
   })
 
+  it('soma points ao cumulativePoints do atleta de affectedRole no match:event', () => {
+    const snap = makeSnapshot()
+    snap.live!.hostLineup = [{ athlete: ATH, cumulativePoints: 2 }]
+    snap.live!.guestLineup = [{ athlete: { ...ATH, id: '00000000-0000-4000-8000-000000000099' }, cumulativePoints: 0 }]
+    const { qc, Wrapper } = wrapper(snap)
+    renderHook(() => useLiveSocket(ROOM_ID), { wrapper: Wrapper })
+    const payload: MatchEventPayload = {
+      event: {
+        id: '00000000-0000-4000-8000-0000000000e2',
+        athlete: ATH,
+        action: 'GOAL',
+        minute: 15,
+        points: 8,
+        affectedRole: 'host',
+        canceled: false,
+      },
+      hostScore: 8,
+      guestScore: 0,
+    }
+    act(() => listeners.get('match:event')!(payload))
+    const updated = qc.getQueryData<RoomSnapshotDto>(['room', ROOM_ID])!
+    expect(updated.live?.hostLineup[0].cumulativePoints).toBe(10)
+    expect(updated.live?.guestLineup[0].cumulativePoints).toBe(0)
+  })
+
+  it('não altera escalações quando affectedRole é null', () => {
+    const snap = makeSnapshot()
+    snap.live!.hostLineup = [{ athlete: ATH, cumulativePoints: 2 }]
+    const { qc, Wrapper } = wrapper(snap)
+    renderHook(() => useLiveSocket(ROOM_ID), { wrapper: Wrapper })
+    const payload: MatchEventPayload = {
+      event: { id: '00000000-0000-4000-8000-0000000000e3', athlete: ATH, action: 'GOAL', minute: 15, points: 8, affectedRole: null, canceled: false },
+      hostScore: 0,
+      guestScore: 0,
+    }
+    act(() => listeners.get('match:event')!(payload))
+    const updated = qc.getQueryData<RoomSnapshotDto>(['room', ROOM_ID])!
+    expect(updated.live?.hostLineup[0].cumulativePoints).toBe(2)
+  })
+
   it('drops the update and invalidates the room query when payload is malformed', () => {
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { qc, Wrapper } = wrapper(makeSnapshot())
