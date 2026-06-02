@@ -19,7 +19,6 @@ export function MatchEventsTimeline({ events }: Props) {
       {events.map((evt) => (
         <div key={evt.id} className="flex items-center gap-2 px-3 py-2 text-sm border-b border-border/50 last:border-b-0">
           <span aria-hidden className="text-base leading-none">{ACTION_ICONS[evt.action]}</span>
-          <span className="text-xs text-muted-foreground tabular-nums w-8">{evt.minute}&apos;</span>
           <span className="font-medium truncate">{evt.athlete.shortName}</span>
           <span className="ml-auto text-muted-foreground text-xs">{ACTION_LABELS[evt.action]}</span>
         </div>

@@ -11,7 +11,6 @@ import { SubstitutionModal } from '@/components/live/SubstitutionModal'
 import { FinishedBanner } from '@/components/live/FinishedBanner'
 import { useLiveSocket } from '@/hooks/useLiveSocket'
 import { useMakeSubstitution, SubstitutionError } from '@/hooks/useMakeSubstitution'
-import { useInterpolatedMinute } from '@/hooks/useInterpolatedMinute'
 import { WsErrorCode } from '@/lib/contracts/ws'
 import { resolveMatchPalettes } from '@/lib/teamColors'
 
@@ -45,11 +44,6 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
   const [subMode, setSubMode] = useState(false)
 
   const makeSub = useMakeSubstitution(room.id)
-  const interpolatedMinute = useInterpolatedMinute(
-    live?.currentMinute ?? null,
-    live?.currentMinuteAt ?? null,
-    live?.clockState ?? 'running',
-  )
 
   // Rooms that abandon during WAITING/DRAFTING never get a `live` snapshot —
   // PendingView used to catch this, but the dispatcher now sends every
@@ -100,8 +94,6 @@ export function LiveMatchView({ room, isHost, finished = false }: Props) {
         homeScore={live.homeScore}
         awayScore={live.awayScore}
         matchStatus={live.matchStatus}
-        minute={interpolatedMinute}
-        clockState={live.clockState}
       />
       <ScoreboardCards
         myName={myName}

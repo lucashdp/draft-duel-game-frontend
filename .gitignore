@@ -50,3 +50,6 @@ next-env.d.ts
 
 # worktrees
 .worktrees/
+
+# Brainstorm visual companion (mockups)
+.superpowers/

@@ -113,13 +113,13 @@ export function MatchCard({ match, className }: MatchCardProps) {
               {formatKickoff(match.kickoffAt)}
             </span>
           )}
-          {isLive && match.currentMinute !== null ? (
+          {isLive ? (
             <span
               data-testid="live-indicator"
               className="flex items-center gap-1 text-[0.7rem] font-bold uppercase tracking-wider text-event-positive"
             >
               <Radio size={11} className="animate-pulse" />
-              {match.currentMinute}&apos;
+              AO VIVO
             </span>
           ) : (
             <span className="text-[0.6rem] uppercase tracking-wider text-muted-foreground">
