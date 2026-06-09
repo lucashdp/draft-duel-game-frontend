@@ -22,9 +22,8 @@ const event = (overrides: Partial<MatchEvent> = {}): MatchEvent => ({
 })
 
 describe('MatchTimeline', () => {
-  it('renders events with minute, name, action, points', () => {
+  it('renders events with name, action, points', () => {
     render(<MatchTimeline events={[event({})]} />)
-    expect(screen.getByText(/30'/)).toBeInTheDocument()
     expect(screen.getByText('Pedro')).toBeInTheDocument()
     expect(screen.getByText(/Gol/i)).toBeInTheDocument()
     expect(screen.getByText('+8.0')).toBeInTheDocument()

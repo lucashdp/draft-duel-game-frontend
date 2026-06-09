@@ -91,6 +91,10 @@ export function useDraftSocket(roomId: string): void {
         if (!prev) return prev
         return { ...prev, status: RoomStatus.LIVE }
       })
+      // O payload de match:started não traz o snapshot `live`; invalidar força o
+      // refetch que hidrata `room.live`, senão a LiveMatchView fica no fallback
+      // "Carregando…" até o refetch de segurança (60s) ou um F5.
+      queryClient.invalidateQueries({ queryKey: ['room', roomId] })
     }
 
     const offPick = socketOn<unknown>(WsServerEvent.DRAFT_PICK_MADE, handlePickMade)

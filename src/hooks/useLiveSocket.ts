@@ -11,6 +11,7 @@ import {
   matchSubstitutionAppliedPayloadSchema,
   matchFinishedPayloadSchema,
   lineupConfirmedPayloadSchema,
+  type LineupSlot,
 } from '@/lib/contracts/live'
 import { RoomStatus, type RoomSnapshotDto } from '@/lib/contracts/rooms'
 
@@ -52,6 +53,15 @@ export function useLiveSocket(roomId: string): void {
           0,
           RECENT_EVENTS_CAP,
         )
+        const { affectedRole, athlete, points } = payload.event
+        const patchLineup = (lineup: LineupSlot[], role: 'host' | 'guest') =>
+          affectedRole === role
+            ? lineup.map((slot) =>
+                slot.athlete.id === athlete.id
+                  ? { ...slot, cumulativePoints: slot.cumulativePoints + points }
+                  : slot,
+              )
+            : lineup
         return {
           ...prev,
           live: {
@@ -59,6 +69,8 @@ export function useLiveSocket(roomId: string): void {
             recentEvents,
             hostScore: payload.hostScore,
             guestScore: payload.guestScore,
+            hostLineup: patchLineup(prev.live.hostLineup, 'host'),
+            guestLineup: patchLineup(prev.live.guestLineup, 'guest'),
           },
         }
       })

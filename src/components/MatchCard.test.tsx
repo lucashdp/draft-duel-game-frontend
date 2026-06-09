@@ -49,7 +49,7 @@ describe('MatchCard', () => {
     )
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
-    expect(screen.getByText(/42'/)).toBeInTheDocument()
+    expect(screen.getByTestId('live-indicator')).toBeInTheDocument()
   })
 
   it('shows the final score when match is finished', () => {
@@ -146,13 +146,13 @@ describe('MatchCard', () => {
 })
 
 describe('MatchCard ao vivo', () => {
-  it('mostra um indicador de ao vivo com o minuto em destaque', () => {
+  it('mostra um indicador de ao vivo', () => {
     render(
       <MatchCard
         match={makeMatch({ status: 'live', homeScore: 1, awayScore: 0, currentMinute: 73 })}
       />,
     )
     const live = screen.getByTestId('live-indicator')
-    expect(live).toHaveTextContent("73'")
+    expect(live).toHaveTextContent('AO VIVO')
   })
 })

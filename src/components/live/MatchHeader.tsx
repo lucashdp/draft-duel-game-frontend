@@ -18,8 +18,6 @@ interface MatchHeaderProps {
   homeScore: number | null
   awayScore: number | null
   matchStatus: MatchStatus
-  minute: number | null
-  clockState: 'running' | 'halftime'
 }
 
 function TeamSide({ team }: { team: Team }) {
@@ -43,8 +41,6 @@ export function MatchHeader({
   homeScore,
   awayScore,
   matchStatus,
-  minute,
-  clockState,
 }: MatchHeaderProps) {
   return (
     <div className="bg-surface rounded-lg p-3 flex items-center justify-between gap-2">
@@ -64,13 +60,6 @@ export function MatchHeader({
         )}
         {matchStatus === 'finished' && (
           <span className="text-muted-foreground font-semibold">FIM</span>
-        )}
-        {clockState === 'halftime' ? (
-          <span className="font-semibold text-amber-500">Intervalo</span>
-        ) : (
-          <span className="tabular-nums text-muted-foreground">
-            {minute !== null ? `${minute}'` : '--'}
-          </span>
         )}
       </div>
     </div>

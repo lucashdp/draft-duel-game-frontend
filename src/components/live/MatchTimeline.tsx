@@ -32,9 +32,6 @@ export function MatchTimeline({ events }: MatchTimelineProps) {
             )}
           >
             <span aria-hidden className="text-base leading-none">{ACTION_ICONS[evt.action]}</span>
-            <span className="text-xs text-muted-foreground tabular-nums w-8">
-              {evt.minute}&apos;
-            </span>
             <span className="font-medium">{evt.athlete.shortName}</span>
             <span className="text-muted-foreground text-xs">
               {ACTION_LABELS[evt.action]}

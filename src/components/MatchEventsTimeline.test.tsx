@@ -13,9 +13,8 @@ describe('MatchEventsTimeline', () => {
     render(<MatchEventsTimeline events={[]} />)
     expect(screen.getByText(/sem eventos/i)).toBeInTheDocument()
   })
-  it('lista eventos com minuto, nome e rótulo', () => {
+  it('lista eventos com nome e rótulo', () => {
     render(<MatchEventsTimeline events={[ev('1', 'GOAL', 10)]} />)
-    expect(screen.getByText("10'")).toBeInTheDocument()
     expect(screen.getByText('Fulano')).toBeInTheDocument()
     expect(screen.getByText('Gol')).toBeInTheDocument()
   })

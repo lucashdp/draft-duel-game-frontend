@@ -19,8 +19,6 @@ const baseProps = {
   homeScore: 1,
   awayScore: 0,
   matchStatus: 'live' as const,
-  minute: 30,
-  clockState: 'running' as const,
 }
 
 describe('MatchHeader', () => {
@@ -34,7 +32,6 @@ describe('MatchHeader', () => {
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('0')).toBeInTheDocument()
     expect(screen.getByText('AO VIVO')).toBeInTheDocument()
-    expect(screen.getByText("30'")).toBeInTheDocument()
   })
 
   it('mostra o ícone de ao vivo mas esconde o texto "AO VIVO" no mobile', () => {
@@ -44,13 +41,8 @@ describe('MatchHeader', () => {
   })
 
   it('shows FIM badge in finished status and hides AO VIVO', () => {
-    render(<MatchHeader {...baseProps} matchStatus="finished" minute={95} />)
+    render(<MatchHeader {...baseProps} matchStatus="finished" />)
     expect(screen.getByText(/FIM/i)).toBeInTheDocument()
     expect(screen.queryByText('AO VIVO')).not.toBeInTheDocument()
-  })
-
-  it('renders placeholder when minute is null', () => {
-    render(<MatchHeader {...baseProps} minute={null} />)
-    expect(screen.getByText(/--/)).toBeInTheDocument()
   })
 })
